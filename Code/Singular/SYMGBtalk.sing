@@ -1,0 +1,521 @@
+// Code to calculate a symmetric groebner basis for an ideal
+// August 11, 2006 
+//
+// by Christopher J. Hillar
+
+// Load libraries - replace with your path
+
+LIB "/sw/share/Singular/LIB/standard.lib";
+LIB "/sw/share/Singular/LIB/general.lib";
+LIB "/sw/share/Singular/LIB/ring.lib";
+LIB "/sw/share/Singular/LIB/poly.lib";
+LIB "/sw/share/Singular/LIB/qhmoduli.lib";
+LIB "/sw/share/Singular/LIB/qmatrix.lib";
+
+/////////////////////
+// NOTATIONAL SETUP//
+/////////////////////
+// 
+//
+// Monomials are indexed by integer vectors (intvec)
+// from RIGHT to LEFT (technical SINGULAR reasons for this)
+//
+// e.g. x(1)x(3)^2 => (2,0,1)
+//
+// to begin a RING must be created as in
+//
+// ring R = 0, (x(3..1)),lp;
+//
+// [using characteristic p might speed things up]
+//
+
+
+
+/////////////////////
+// DEFINE FUNCTIONS//
+/////////////////////
+
+
+// intvec SYMGB_substring(intvec u, intvec v)
+//
+// Checks whether u is a <= substring of v skipping 0s in u
+// 		-- examines RIGHT to LEFT --
+// the additional RESTRICTION is that an integer in u
+// CANNOT be matched with an integer in v coming before it
+// e.g. u = (1,0,0), v = (0,0,1) does not have u <= v 
+// (even though u is a 'substring' of v in some sense)  
+//
+// ex. u = [9,0,0,2,3] is a <= substring of v = [9,6,4,1,5]
+// since  [9, 2, 3]
+//	   /\ /\ /\
+// 	  [9, 4, 5]
+//
+// but u = [7,0,7,0,5] is not a <= substring of v
+//
+// Return: this function returns an intvec of the forms:
+//
+//  0	  -- u is NOT <= v
+//  w	  -- u <= v and w = permutation of size u
+//
+// w records the matching of the <= substring u in v
+// this permutation is written in reverse order
+// 
+//
+//
+
+proc SYMGB_substring(u,v) {
+   intvec w; int wcnt = 1;  int i; int iszerou = 1;
+
+   for ( i = 1; i <= size(u); i++ ) {
+	if ( u[i] != 0 ) { iszerou = 0; break; }
+	w[i] = size(u)-i+1;
+   }
+   if ( iszerou == 1) { return(w); }	// u represents constant poly
+
+   intvec pp = SYMGB_substring_helper(size(u),size(v),u,v,w);  // get partial perm info
+   if ( pp[1] == 0 ) { return (0); }	// not compartable
+ 
+   // fill in rest of permutation pp
+   intvec totperm; intvec taken; int ucnt = 1; int r; int s;
+   for( i = 1; i <= size(u); i++ ) {
+	totperm[i] = 0;
+	taken[i] = 0;
+   }
+   for( i = 1; i <= size(u); i++ ) {
+	if ( u[i] > 0 ) {			// w[i] tells where u[i] went		
+		r = size(u)-i+1;
+ 		s = size(u)-pp[wcnt]+1;				   
+		totperm[i] = s;			// replace x(r) by x(s)
+		taken[s] = 1;   		// s is taken
+		wcnt++;
+	}
+    }
+    int counter = 1;  int j;
+    for( i = size(u); i >= 1; i-- ) {   // fill in rest of permutation
+	if ( totperm[i] == 0 ) {			
+		for ( j	= counter; j <= size(u); j++ ) {
+			if ( taken[j] == 0 ) {
+				totperm[i] = j;
+				counter = j+1;
+				break;
+			}
+		}		
+	}
+    }
+    return(totperm);
+}
+
+
+// intvec SYMGB_substring_helper(int posu, int posv, intvec u, intvec v, intvec w)
+//
+// Helper function for SYMGB_substring that
+// allows for the recursion
+// returns partial permutation information
+// [NOTE: probably better to get make recursion iterative]
+
+proc SYMGB_substring_helper(posu, posv, u, v,w) {
+   if ( posu == 0 ) {  // base case, match's found for all u[s]'s
+	return (w);
+   }
+   if ( u[posu] == 0 ) {
+        return (SYMGB_substring_helper(posu-1, posv,u,v,w));	
+   }
+   list L = posu,posv;
+   int t = Min(L);	
+   for (int i = t; i >= 1; i--) {
+        if (v[i] >= u[posu])  {  	// match found for element u[s] 
+	   intvec w2 = i,w;
+	   return (SYMGB_substring_helper(posu-1, i-1,u,v,w2));
+     	}
+   }
+   return (0);
+}
+
+
+// intvec SYMGB_lessthan(poly g, poly f) 
+//
+// Checks whether lm(g) <= lm(f)
+// in the sym cancellation order
+// f,g are polynomials, lm(.) is lex ld. mon.
+// RETURN value is same as in SYMGB_substring
+
+proc SYMGB_lessthan(g, f) {  
+     intvec u = leadexp(g);  intvec v = leadexp(f);
+     intvec w;
+
+     if ( leadmonom(f) == leadmonom(g) ) {
+	 return( SYMGB_substring(u, v) );
+     }
+     if ( leadmonom(f) == leadmonom(f-g) ) {   // first have to have lm(g) <=lex lm(f) 	
+	 return( SYMGB_substring(u, v) );
+     }
+     return (0);
+}
+
+
+// poly proc SYMGB_permute(poly f, intvec w, ring R)
+//
+// acts on f by permutation with w (viewed in reverse order)
+//           3 2 1 
+// e.g. P = (1,3,2) on x(1)*x(2)^3*(3)^2 is x(2)*x(3)^3*(1)^2
+// R is the ambient ring
+
+proc SYMGB_permute(f,w,R) {
+     ideal L = ideal();
+     for ( int i = 1; i <= size(w); i++ ) {
+	L[i] = x(w[i]);
+     }	
+     map symp = R,L;
+     poly h = symp(f);
+     return(h);
+}
+
+// poly SYMGB_SGpoly(poly g, poly f, intvec w, ring R)
+//
+// given w (permutation output from SYMGB_substring)
+// and f,g (which were inputs to SYMGB_lessthan)
+// this function creates the SGpoly(g,f) with this permutation
+// (this is the 'reduction' of f by g through w)
+
+proc SYMGB_SGpoly(g,f,w,R) {	     
+     intvec u = leadexp(g); 
+     poly ldmong = leadmonom(g); 
+     poly oldg = g;
+     g = SYMGB_permute(g,w,R);
+     poly c = leadcoef(f)/leadcoef(g);
+     poly h = f - c*g*leadmonom(f)/leadmonom(g);
+     return (h);
+}
+
+
+// poly proc SYMGB_spoly(poly f, poly g)
+//
+// Computes the standard S-polynomial for the pair f,g
+
+proc SYMGB_spoly(f,g) {
+    poly m = lcm(leadmonom(f),leadmonom(g));
+    return(f*m/lead(f)-g*m/lead(g));
+}
+
+
+// poly SYMGB_reduce(poly f, list B, ring R)
+//
+// Reduction of polynomial f by set B
+// B is a list of polynomials
+// f is a polynomial to reduce by
+// reduction performed in the order given by the list B
+
+proc SYMGB_reduce(f,B,R) {
+     int s = size(B); intvec a; 
+     for( int j = 1; j <= size(B); j++ ) {  // if explicit reduction coeffs desired
+	a[j] = 0;			    // --TO BE IMPLEMENTED LATER--
+     }
+     poly p = f; poly r = 0; poly g;
+     int i;  int cnt = 0;  int divoccured;
+     intvec permw;
+     while ( p <> 0 ) {			// modified division algorithm
+	i = 1;
+        divoccured = 0;
+	while ( i <= s ) {
+		g = B[i];	
+		permw = SYMGB_lessthan(g,p);
+		if ( permw != 0 ) { 		// they are comparable
+			p = SYMGB_SGpoly(g,p,permw,R);	// reduce by g
+			divoccured = 1;
+			break;
+		} else {
+			i++;
+		}
+	}
+	if ( divoccured == 0 ) {
+		r = r + lead(p);
+		p = p - lead(p);
+	} 
+     }
+     return(r);
+}
+
+
+// list SYMGB_gbasis(list B, int n, intmat Sn, ring R, int numiter, int printflag, int algorithm)
+//
+//  Attempts to find a symmetric Groebner basis for the
+//  Sn-module generated by the polynomials in B
+//
+//  n 		= number of indeterminates
+//  numiter 	= number of iterations to stop after (in case of non-termination)
+//  Sn		= SymGroup(n), symmetric group on n letters
+//  printflag	= 1 to display new additions to GB; 0 (= default) otherwise
+//  algorithm	= 1 is faster (but only approx) algorithm; 0 (= default) is original algorithm
+//  R		= ambient ring
+//
+//  Algorithm: Initialize Bnew = B.
+//  For each pair {f,g} (note: f = g is allowed) in the set B
+//  one produces all (normal) S-pairs h = S(af,bg) where a,b are permutations
+//  in Sn.  Each such h is then reduced by the Sn-orbit of Bnew and
+//  added to Bnew if it is nonzero.
+//  Repeat until no new h's are added or until numiter iterations are
+//  performed.
+//  [When algorithm = 1, instead all S(f,bg) are formed - known to produce INcorrect results]
+//  Output: Bnew
+
+proc SYMGB_gbasis(B, n, Sn, R, numiter, printflag, int algorithm) {
+    list Bnew = B;  list temp;
+    poly h;
+    intvec P1;
+    intvec P2;	
+    int factn = fact(n);
+    int i;  int j; int k; int l; int s;  int iter; int q;  
+    list tempB; list tempnewB; poly newpoly;
+
+    list SnBnew = SYMGB_SnOrbit(Bnew,n,Sn,R);
+    for ( iter = 1; iter <= numiter; iter++ ) {
+      for ( i = size(B); i >= 1; i-- )  {	// for each pair in B	
+	for ( j = i; j >= 1; j-- ) {
+	    for ( k = 1; k <= factn; k++ ) {
+		  if ( algorithm == 0 ) {	// original algorithm	    
+	   	     for ( l = 1; l <= factn; l++ ) {
+			for ( s = 1; s <= n; s++ ) { P1[s] = Sn[k,s]; }  // retrieve perm from Sn
+		    	for ( s = 1; s <= n; s++ ) { P2[s] = Sn[l,s]; }
+		    	h = SYMGB_spoly( SYMGB_permute(B[i],P1,R), SYMGB_permute(B[j],P2,R) );
+		   	h = SYMGB_reduce(h,SnBnew,R);
+
+		    	if ( h <> 0 ) { 
+			  h = h/content(h);
+			  if ( printflag == 1 ) {   // if user wants to see new element
+				print(h); 
+			  }
+			  Bnew = insert(Bnew,h);    // add new element to potential GB
+			  tempnewB = h;		    
+			  for ( q = 1; q <= size(Bnew); q++ ) {  // reduce every other element of Bnew by h
+				tempB = h;
+			  	newpoly = SYMGB_reduce(Bnew[q],SYMGB_SnOrbit(tempB,n,Sn,R),R);
+				if ( newpoly <> 0 ) {
+				    tempnewB = insert(tempnewB,newpoly);
+				} 
+			  }	
+			  Bnew = tempnewB;
+			  SnBnew = SYMGB_SnOrbit(Bnew,n,Sn,R);    // update orbit of partial GB
+		        } 
+		     }
+		   } else {
+			   //  This is faster, but it sometimes misses some polynomials
+			   //  BEWARE of output
+		 	 for ( s = 1; s <= n; s++ ) { P1[s] = Sn[k,s]; }  // retrieve perm from Sn
+			    h = SYMGB_spoly( B[i], SYMGB_permute(B[j],P1,R) );
+			    h = SYMGB_reduce(h,SnBnew,R);
+			    if ( h <> 0 ) { 
+				if ( printflag == 1 ) { print(h); }
+				Bnew = insert(Bnew,h);    // add new element to potential GB
+				temp = h;
+				SnBnew = appendList(SnBnew,SYMGB_SnOrbit(temp,n,Sn,R));  
+			    }
+		    }
+	    }	
+	}
+      }
+      if ( size(B) == size(Bnew) ) {       // GB found	
+	print("A Complete GB found:");  
+	return(Bnew); 
+      }
+      B = Bnew;
+    }
+    print("A Partial GB found.  It is the Sn-orbit of:");
+    return(Bnew);   			   //  returns a partial GB
+}
+
+
+// list SYMGB_complete_gbasis(list B, int numiter, int printflag, int algorithm)
+//		-- NOT WORKING RIGHT NOW --
+//  Attempts to find a symmetric Groebner basis for the
+//  S_{\infty}-module generated by the polynomials in B
+//
+//  numiter 	= number of iterations to stop after
+//  printflag	= 1 to display new additions to GB; 0 (= default) otherwise
+//  startvar	= index of largest indeterminate in B
+//  endvar	= when to give up increasing size of ring
+//
+//  Algorithm: Compute a gbasis for n = k,k+1,...
+//  returns when these gbases stabilize
+//
+//  FOR SOME REASON THIS WILL NOT WORK
+//  SINGULAR HAS SOME BUGGY THINGS GOING ON HERE WITH
+//  REDEFINING RINGS, ETC
+
+proc SYMGB_complete_gbasis(B,startvar,endvar,numiter,printflag,algorithm) {
+   int n;  list GBold; list GB;
+
+   if ( endvar < startvar ) { print("endvar needs to be bigger than startvar"); return(); }
+   for ( n = startvar; n <= endvar; n++ ) {
+	ring S = 0, (x(n..1)),lp;
+	list newB = B;
+	GB = SYMGB_gbasis(newB,n,SymGroup(n),S,numiter,printflag,algorithm);
+	if ( size(GB) == size(GBold) ) {      // found complete gbasis
+		print("Complete S_{\infty}-module GB found.");
+		return(GB);
+	}
+	GBold = GB;
+   }
+}
+
+
+//  list SYMGB_SnOrbit(list B, int n, intmat Sn, ring R)
+//
+//  Output the Sn-orbit of a list of polynomials B
+
+proc SYMGB_SnOrbit(B,n,Sn,R) {
+//	print(B[1]);  print(size(B));
+    intvec P;
+    int factn = fact(n);  
+    int i;  int j;  int s;
+    list SnB = list();
+    for ( i = 1; i <= size(B); i++ ) {
+	for ( j = 1; j <= factn; j++ ) {
+	     for ( s = 1; s <= n; s++ ) { P[s] = Sn[j,s]; }
+		SnB = insert(SnB, SYMGB_permute(B[i],P,R));
+ 	}
+    }
+    return(SnB);
+}
+
+
+//  list SYMGB_minimal_gbasis(list GB)
+//
+//  removes redundancy of leading monomials in GB
+//  if GB is a Groebner basis, returns minimal Groebner basis
+
+proc SYMGB_minimal_gbasis(GB) {
+    int i;  int j;  intvec w;
+    list tempGB = GB; list minGB;
+    for ( i = 1; i <= size(tempGB); i++ ) {		//  A basic sieve here
+	for ( j = 1; j <= size(tempGB); j++ ) {
+	    if ( i != j ) {
+		if ( tempGB[i] != 0 ) {
+		       w = SYMGB_lessthan(tempGB[i], tempGB[j]);
+		       if ( w != 0 ) {
+ 			  tempGB[j] = 0;
+	  	       }
+		}
+	    }
+	}
+    }
+    for ( i = 1; i <= size(tempGB); i++ ) { 	//  Collect what remains
+	if ( tempGB[i] != 0 ) {
+	    minGB = insert(minGB,tempGB[i]);
+	} 
+    }
+    return(minGB);  
+}
+
+
+// list appendList(list A, list B)
+//
+// returns list A union list B
+
+proc appendList(A,B) {
+   list new = A;
+   for ( int i = 1; i <= size(B); i++ ) {
+	new = insert(new,B[i]);
+   }
+   return(new);
+} 
+
+
+// int fact(int n)
+//
+// returns n!
+
+proc fact(n) {
+   int tot = 1;
+   for ( int i = 2; i <= n; i++ ) {
+	tot = tot * i;
+   }
+   return(tot);
+} 
+
+
+
+/////////////////////
+// gbasis examples //
+/////////////////////
+
+// Example where same set B for n = 2 is different than n = 3
+// But eventually stabilizes 
+
+ring S = 0, (x(2..1)),lp;
+list B = x(1)+x(2),x(1)*x(2);
+list GB = SYMGB_gbasis(B,2,SymGroup(2),S,4,0,0); 
+print("A minimal GB is given by:");
+SYMGB_minimal_gbasis(GB);
+
+ring S = 0, (x(3..1)),lp;
+list B = x(1)+x(2),x(1)*x(2);;
+list GB = list();
+GB = SYMGB_gbasis(B,3,SymGroup(3),S,4,0,0); 
+GB;
+list OGB = SYMGB_SnOrbit(GB,3,SymGroup(3),S);
+
+ring S = 0, (x(4..1)),lp;
+list B = x(1)+x(2),x(1)*x(2);;
+//list GB = SYMGB_gbasis(B,4,SymGroup(4),S,4,0,0);
+GB;
+
+ring S = 0, (x(4..1)),lp;
+list B = x(1)+x(2)+x(3);
+//list GB = SYMGB_gbasis(B,4,SymGroup(4),S,4,0,0);
+GB;
+print("A minimal GB is given by:");
+SYMGB_minimal_gbasis(GB);
+
+
+// Examples with 2 and 3 polynomials
+
+ring R = 0, (x(3..1)),lp;   
+list B = x(1)^3*x(3)+x(1)^2*x(2)^3, x(2)^2*x(3)^2-x(2)^2*x(1)+x(1)*x(3)^2;
+list GB = SYMGB_gbasis(B,3,SymGroup(3),R,4,1,0);
+list GBm = SYMGB_minimal_gbasis(GB);		      		// remove redundancy
+
+GBm;
+
+list OGB = SYMGB_SnOrbit(GBm,3,SymGroup(3),R);  // compare with normal groebner calculation
+//OGB;
+// ideal I = x(3)^2*x(2)^2+x(3)^2*x(1)-x(2)^2*x(1), x(3)^2*x(2)^2-x(3)^2*x(1)+x(2)^2*x(1),
+//  	 x(3)*x(2)^2-x(3)*x(1)^2+x(2)^2*x(1)^2, x(3)^2*x(2)+x(3)^2*x(1)^2-x(2)*x(1)^2,
+// 	-x(3)^2*x(2)+x(3)^2*x(1)^2+x(2)*x(1)^2,  -x(3)*x(2)^2+x(3)*x(1)^2+x(2)^2*x(1)^2,
+//	 x(3)*x(1)^3+x(2)^3*x(1)^2,  x(3)^3*x(1)^2+x(2)*x(1)^3, x(3)^3*x(2)+x(3)^2*x(1)^3,
+//	 x(3)*x(2)^3+x(2)^2*x(1)^3, x(3)^3*x(2)^2+x(2)^3*x(1), x(3)^3*x(1)+x(3)^2*x(2)^3;
+//list G = groebner(I);
+//G;
+//SYMGB_minimal_gbasis(G);		      		// remove redundancy
+//SYMGB_lessthan(x(3)^2*x(1)-x(2)^2*x(1),x(3)^2*x(2)-x(3)^2*x(1)^2-x(2)*x(1)^2);
+
+ring R = 0, (x(10..1)),lp;  
+
+list I = x(2)^2*x(1)^2,   x(3)^2*x(1)^2,   x(3)^2*x(2)^2,   -x(2)*x(1)^4,   -x(3)*x(1)^4,
+   -x(3)^4*x(1),   -x(2)^4*x(1),   -x(3)*x(2)^4,   -x(3)^4*x(2),   x(3)*x(1)^3,   x(2)*x(1)^3,
+   x(3)^3*x(2),   x(3)*x(2)^3,   x(2)^3*x(1),   x(3)^3*x(1),   x(3)^2*x(1)+x(2)^4*x(1)-x(2)^2*x(1),
+   x(3)^4*x(1)-x(3)^2*x(1)+x(2)^2*x(1),   x(3)*x(2)^2+x(3)*x(1)^4-x(3)*x(1)^2,
+   x(3)^2*x(2)+x(2)*x(1)^4-x(2)*x(1)^2,   x(3)^4*x(2)-x(3)^2*x(2)+x(2)*x(1)^2, 
+  x(3)*x(2)^4-x(3)*x(2)^2+x(3)*x(1)^2,   x(3)*x(2)*x(1)^2,   x(3)*x(2)*x(1)^2,   x(3)^2*x(2)*x(1),
+   x(3)*x(2)^2*x(1),   x(3)*x(2)^2*x(1),   x(3)^2*x(2)*x(1);
+
+
+poly h = (x(2)^5*x(3)*x(6)*x(7)^2+3*x(1)*x(9)*x(10)*x(7)*x(4)^3)*(x(2)^2*x(3)^2-x(2)^2*x(1)+x(1)*x(3)^2) + (x(9)*x(1)*x(2)^3+x(2)*x(5)^3*x(9)+5*x(1)^2)*(x(1)^3*x(3)+x(1)^2*x(2)^3) + (x(3)^2*x(4)^2-x(3)^2*x(5)+x(5)*x(4)^2)  - 2*(x(1)^2*x(3)^2-x(1)^2*x(5)+x(5)*x(3)^2) + 3*(x(8)^2*x(10)^2-x(8)^2*x(7)+x(7)*x(10)^2) - (x(10)^2+x(6)*x(7)*x(8)^7)*(x(5)^3*x(9)+x(5)^2*x(8)^3)^2;
+
+h;
+
+print("Reduction modulo Groebner Basis:");
+
+SYMGB_reduce(h,I,R);
+
+
+
+
+
+
+
+
+
+
+
+
+
