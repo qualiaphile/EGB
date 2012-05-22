@@ -72,7 +72,9 @@ allPerms = n -> (
      return new List from Perms;
      )
 
-reduce = (f,B) -> (
+reduce = method(Options=>{Completely=>false})
+reduce (RingElement, BasicList) := o -> (f,B) -> (
+     B = select(B,b->b!=0);
      R := ring f;
      r := 0;
      while f != 0 do (
@@ -92,11 +94,8 @@ reduce = (f,B) -> (
 	       f = f - leadTerm f;
 	       );
 	  );
-     return r;
-     )
-
-interreduceGB = G -> ( -- !!!
-
+     if not o.Completely or r == 0 then r
+     else leadTerm r + reduce(r - leadTerm r, B, Completely=>true) 
      )
 
 reduceGB = G -> (
@@ -141,9 +140,68 @@ truncatedGB = F -> (
      return reduceGB F;
      )
 
+processSpairs = (F,k) -> (
+     R := ring F#0;
+     n := numgens R;
+     x := symbol x;
+     R' := (coefficientRing R)[reverse(x_0..x_(n+k-1)), MonomialOrder => Lex];
+     RtoR' := map(R',R, drop(gens R',1));
+     F = F/RtoR';
+     sp := shiftPairs(R',k);
+     print sp;
+     i := 0;
+     nF := #F;
+     scan(nF, i->
+	  scan(nF, j->(
+	       	    if j != i then 
+	       	    for st in sp do (
+		    	 (s,t) := st;
+		    	 f := spoly(s F#i, t F#j);
+		    	 r := reduce(f,F);
+		    	 --if f != 0 then print (i,j,s,t);
+		    	 if r != 0 then (<<"n"<<flush; F = --interreduceGB 
+			      append(F,r));
+		    	 );
+	       	    ))
+	  );
+     interreduce symmetrize F
+     )
+
+shiftPairs = (R,k) -> (
+     assert(k==1); -- assume k=1
+     n := numgens R;
+     apply(n, i->(identity,
+	       map(R,R,apply({0} | toList(0..i-1) | toList (i+1..n-1), j->R_j))))
+     )
+
+symmetrize = method()
+symmetrize List := F -> flatten (F/symmetrize)
+symmetrize RingElement := f -> (
+     R := ring f;
+     supp'f := support f;
+     apply(permutations supp'f, p->
+	  (map(R,R,apply(#supp'f,i->supp'f#i=>p#i))) f
+	  )
+     )
+
+interreduce = F -> (
+     M := new MutableList from F;
+     m := #F;
+     local i;
+     while( 
+	   (i = position(0..m-1,i'-> 
+		     any(m, j->j=!=i' and M#j != 0 and M#i'!= 0 and first divWitness(M#j,M#i'))
+		     )     
+	   ) =!= null  
+     	  ) do (
+	       M#i = reduce(M#i,drop(M,{i,i}))
+	  );
+     M = toList select(M, f->f!=0);
+     apply(M, f->leadTerm f + reduce(f-leadTerm f,M,Completely=>true))
+     ) 
 end
 
-load "SymmetricGB.m2"
+load "egb.m2"
 R = QQ[x_3,x_2,x_1, MonomialOrder => Lex]
 f = x_3^2*x_2^2 + x_2*x_1
 B = {x_3*x_1 + x_2*x_1}
