@@ -1,0 +1,250 @@
+  %  File:  EGB_algorithm.tex
+
+\documentclass{amsart}
+\usepackage{amssymb}
+ 
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{question}[theorem]{Question}\newtheorem{conjecture}[theorem]{Conjecture}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{xca}[theorem]{Exercise}
+\newtheorem{algorithm}[theorem]{Algorithm}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\numberwithin{equation}{section}
+
+%    Absolute value notation
+\newcommand{\abs}[1]{\lvert#1\rvert}
+
+%    Blank box placeholder for figures (to avoid requiring any
+%    particular graphics capabilities for printing this document).
+\newcommand{\blankbox}[2]{%
+  \parbox{\columnwidth}{\centering
+%    Set 
+fboxsep to 0 so that the actual size of the box will match the
+%    given measurements more closely.
+    \setlength{\fboxsep}{0pt}%
+    
+\fbox{\raisebox{0pt}[#2]{\hspace{#1}}}%
+  }%
+}
+
+\newcommand{\floor}[1]{\lfloor {#1} \rfloor}
+\newcommand{\ceil}[1]{\lceil {#1} \rceil}
+\newcommand{\binomial}[2]{\left( 
+\begin{array}{c} {#1} \\
+                        {#2} \end{array} \right)}
+\def\la{\langle}
+\def\ra{\rangle}
+
+\newcommand{\lm}{\operatorname{lm}}
+\newcommand{\lc}{\operatorname{lc}}
+\newcommand{\lt}{\operatorname{lt}}
+
+
+\newcommand{\rank}{\textit{\rm rank}}
+\newcommand{\<}{\langle}
+\renewcommand{\>}{\rangle}
+
+
+\DeclareSymbolFont{AMSb}{U}{msb}{m}{n}
+\DeclareMathSymbol{\F}{\mathbin}{AMSb}{"46}
+\DeclareMathSymbol{\N}{\mathbin}{AMSb}{"4E}
+\DeclareMathSymbol{\Z}{\mathbin}{AMSb}{"5A}
+\DeclareMathSymbol{\R}{\mathbin}{AMSb}{"52}
+\DeclareMathSymbol{\C}{\mathbin}{AMSb}{"43}
+
+
+\begin{document} \title[Algorithms for Symmetric Gr\"obner Bases]
+{An Algorithm for Finding \\  Gr\"obner Bases in Infinite \\ Dimensional Polynomial Rings}
+
+ %   Information for first author 
+\author{Christopher J. Hillar}
+\address{Redwood Center for Theoretical Neuroscience, University of California, Berkeley}
+\email{chillar@msri.org}
+
+\author{Robert Krone}
+\address{Georgia Tech University, Atlanta, GA}
+\email{krone@math.gatech.edu}
+
+\author{Anton Leykin}
+\address{Georgia Tech University, Atlanta, GA}
+\email{anton.leykin@gmail.com}
+
+%\thanks{The work of the first author is supported under a National Science Foundation Graduate Research Fellowship.} 
+
+\subjclass{13E05, 13E15, 20B30, 06A07}%
+
+% \keywords{Invariant ideal, well-quasi-ordering, symmetric group, Gr\"obner basis, generating sets}
+
+
+% \keywords{}
+
+% ----------------------------------------------------------------
+\begin{abstract}
+We give an explicit algorithm to find Gr\"obner bases for symmetric
+ideals in infinite dimensional polynomials rings.  This allows for symbolic computation
+in a new class of rings.
+\end{abstract} 
+
+\maketitle 
+
+\section{Introduction}
+Let $X = \{x_1,x_2,\ldots\}$ be an infinite collection of
+indeterminates, indexed by the positive integers, and let ${\mathfrak S}_{\infty}$ be the group of
+permutations of $X$.  For a positive integer $N$, we will also let 
+${\mathfrak S}_N$ denote the set of permutations of $\{1,\ldots,N\}$.
+Fix a field $K$ and let $R = K[X]$ be the polynomial ring in the indeterminates $X$.  The group
+${\mathfrak S}_{\infty}$ acts naturally on $R$: if $\sigma \in {\mathfrak
+  S}_{\infty}$ and $f\in K[x_1,\dots,x_n]$, then 
+\begin{equation}\label{groupaction}
+\sigma f(x_1,\ldots,x_n) = f( x_{\sigma1},\dots,  x_{\sigma n})\in R.
+\end{equation}
+We let $R[{\mathfrak S}_{\infty}]$ be the (left) group ring of ${\mathfrak S}_{\infty}$ over $R$ 
+with multiplication given by $f\sigma\cdot g\tau = fg(\sigma\tau)$ for $f,g\in R$ and
+$\sigma,\tau\in {\mathfrak S}_{\infty}$, and extended by linearity.
+The action (\ref{groupaction}) naturally gives $R$ the structure of a (left) module over the
+ring $R[{\mathfrak S}_{\infty}]$.
+An ideal $I \subseteq R$ is called \textit{invariant under ${\mathfrak S}_{\infty}$}
+(or simply \textit{invariant}) if \[ {\mathfrak S}_{\infty}I := \{\sigma f
+: \sigma \in {\mathfrak S}_{\infty}, \ f \in I\} \subseteq I.\] 
+Invariant ideals are then simply the $R[{\mathfrak S}_{\infty}]$-submodules of
+$R$.  
+
+The following says that while ideals of $R$
+are too big in general, those with extra structure have finite presentations.
+
+\begin{theorem}\label{onevarfinitegenthm}
+Every invariant ideal of $R$ is finitely generated as an $R[ {\mathfrak S}_{\infty}]$-module.  
+In other words, $R$ is a Noetherian $R[{\mathfrak S}_{\infty}]$-module.
+\end{theorem}
+
+
+For the purposes of this work, we will use the following notation.
+Let $B$ be a ring and let $G$ be a subset of a $B$-module $M$.  Then
+$\<f: f \in G \>_{B}$ will denote the $B$-submodule of $M$ generated
+by the elements of $G$.
+
+
+\begin{example}
+$I = \<x_1,x_2,\ldots\>_R$ is an invariant ideal of $R$.  Written as 
+a module over the group ring $R[{\mathfrak S}_{\infty}]$, it has the
+compact presentation $I= \<x_1\>_{R[{\mathfrak S}_{\infty}]}$.
+\end{example}
+
+\begin{theorem}
+Let $G$ be a Gr\"obner basis for an invariant ideal $I$.  Then $f \in I$ 
+if and only if $f$ has normal form $0$ with respect to $G$.
+\end{theorem}
+
+\begin{example}\label{trunccounterex}
+Let $I = \<x_1 + x_2, x_1 x_2\>_{R[{\mathfrak S}_{\infty}]}$.  Then, a
+Gr\"obner basis for $I$ is given by $G = \{x_1\}$.  It is important to note that we may not 
+simply restrict consideration to $K[x_1,x_2]$ to produce this result since
+%\[  \<x_1 + x_2, x_1 x_2\>_{R[{\mathfrak S}_{\infty}]} = \<x_1\>_{R[{\mathfrak S}_{\infty}]}\]
+%but 
+\[  \<x_1 + x_2, x_1 x_2\>_{R[{\mathfrak S}_{2}]} \neq  \<x_1\>_{R[{\mathfrak S}_{2}]}.\]
+\end{example}
+
+\begin{example}
+The ideal $I = \<x_1^3 x_3 + x_1^2 x_2^3, 
+x_2^2 x_3^2 - x_2^2 x_1 + x_1 x_3^2\>_{R[{\mathfrak S}_{\infty}]}$ has a 
+Gr\"obner basis given by:
+\[ G = {\mathfrak S}_{3} \cdot \{x_3 x_2 x_1^2, x_3^2 x_1 + x_2^4 x_1 - x_2^2 x_1, 
+x_3 x_1^3, x_2 x_1^4, x_2^2 x_1^2\}.\]
+Once $G$ is found, testing whether a polynomial $f$ is in $I$ is computationally fast.
+\qed
+\end{example}
+
+The normal form reduction we are talking about here is a modification of the
+standard notion in polynomial theory and Gr\"obner bases;  
+we describe it in more detail in Section \ref{gbinfinite}.
+Unfortunately, the techniques used to
+prove finiteness in \cite{AH} are nonconstructive and therefore do not
+give methods for computing Gr\"obner bases in $R$.
+Our main result is an algorithm for finding these bases.
+
+\begin{theorem}
+Let $I = \<f_1, \ldots, f_n\>_{R[{\mathfrak S}_{\infty}]}$ be an invariant ideal of $R$.
+There exists an effective algorithm to compute a finite minimal Gr\"obner basis for $I$.
+\end{theorem}
+
+\begin{corollary}
+There exists an effective algorithm to solve the ideal membership problem
+for symmetric ideals in the infinite dimensional ring $K[x_1,x_2,\ldots]$.
+\end{corollary}
+
+\section{Algorithms}
+
+We postpone the proof of correctness of the algorithms above until Section \ref{proofcorrect}
+
+\section{Examples}\label{algexamples}
+
+Here we list some examples of our algorithm.\footnote{Code that performs the calculations in this section can be found at ??.}
+
+Consider $F = \{x_1+x_2, x_1 x_2\}$ from the introduction.  One iteration of 
+Algorithm \ref{symGBalg} with $i = 2$ gives $F' = \{x_1+x_2, x_1^2\}$.
+The next two iterations produce $\{x_1\}$ and thus the algorithm returns with this 
+as its asnwer. 
+
+\section{Proof of Correctness}\label{proofcorrect}
+
+Here we prove that our algorithm terminates and 
+produces a Gr\"obner basis for an ideal $I$.
+
+
+
+
+% ----------------------------------------------------------------
+\begin{thebibliography}{99}
+
+%\bibitem{AH}
+%M. Aschenbrenner and C. Hillar, \emph{Finite generation of symmetric ideals}, 
+%Trans. Amer. Math. Soc., to appear.
+
+%\bibitem{BB1} B. Buchberger, \emph{An algorithm for finding a basis
+%for the residue class ring of a zero-dimensional polynomial
+%ideal}, PhD Thesis, University of Innsbruck,
+%Institute for Mathematics (1965).
+
+%\bibitem{BB2} B. Buchberger, \emph{An algorithmic criterion for the
+%solvability of algebraic systems of equations},
+%Aequat. Math. \textbf{4} (1970), 374--383.
+
+\bibitem{Cox2} D. Cox, J. Little, D. O'Shea, \emph{Using algebraic geometry},
+Springer, New York, 1998.
+
+%\bibitem{HW} 
+%C. Hillar and T. Windfeldt, \emph{Minimal generators for symmetric ideals}, preprint.
+
+%\bibitem{Ruch1} A. Mead, E. Ruch, A. Sch\"onhofer, \emph{Theory of
+%    chirality functions, generalized for molecules with chiral
+%    ligands}.  Theor. Chim.  Acta \textbf{29} (1973), 269--304.
+%
+%\bibitem{Ruch2} E. Ruch, A. Sch\"onhofer, \emph{Theorie der
+%    Chiralit\"atsfunktionen}, Theor. Chim. Acta \textbf{19} (1970),
+%  225--287.
+%
+%\bibitem{Ruch3} E. Ruch, A. Sch\"onhofer, I. Ugi, \emph{Die
+%    Vandermondesche Determinante als N\"aherungsansatz f\"ur eine
+%    Chiralit\"atsbeobachtung, ihre Verwendung in der Stereochemie und
+%    zur Berechnung der optischen Aktivit\"at}, Theor. Chim.  Acta
+%  \textbf{7} (1967), 420--432.
+
+%\bibitem{JS}
+%J. Schicho, private communication, 2006.
+
+
+
+\end{thebibliography}
+
+\end{document}
+% ----------------------------------------------------------------
+
