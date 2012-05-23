@@ -17,6 +17,7 @@
 
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
+\newtheorem{criterion}[theorem]{Criterion}
 
 \numberwithin{equation}{section}
 
@@ -52,6 +53,8 @@ fboxsep to 0 so that the actual size of the box will match the
 \newcommand{\rank}{\textit{\rm rank}}
 \newcommand{\<}{\langle}
 \renewcommand{\>}{\rangle}
+\newcommand{\ideal}[1]{\langle #1 \rangle}
+\newcommand{\LT}{\operatorname{in}_>}
 
 
 \DeclareSymbolFont{AMSb}{U}{msb}{m}{n}
@@ -180,6 +183,48 @@ There exists an effective algorithm to compute a finite minimal Gr\"obner basis 
 There exists an effective algorithm to solve the ideal membership problem
 for symmetric ideals in the infinite dimensional ring $K[x_1,x_2,\ldots]$.
 \end{corollary}
+
+Let $G$ denote the monoid of strictly increasing functions $\pi : \N \to \N$.  $G$ has a natural action on the variables of $R$ with $\pi$ mapping $x_i$ to $x_{\pi(i)}$.  This defines an action of $G$ on $R$ and note that this action respects the term order defined on $R$.  For any two monomials $m,n$, $m < n$ implies $\pi(m) < \pi(n)$ for all $\pi \in G$.  In particular for any polynomial $g \in R$, $\LT(\pi g) = \pi \LT(g)$.  We can define the $G$-invariant ideals as ideals $I \subset R$ with $G I \subset I$.  Equivalently they are the $R[G]$-submodules of $R$.
+\begin{proposition}
+ $R$ is a Noetherian $R[G]$-module.
+\end{proposition}
+
+\begin{proposition}
+ If $I$ is a ${\mathfrak S}_\infty$-invariant ideal, then $I$ is also $G$-invariant.
+\end{proposition}
+\begin{proof}
+ For any $f \in I$ and $\pi \in G$, $\pi f$ contains only a finite number of variables in $R$.  Let $n$ be the index of the largest variable occurring in $\pi f$.  Then there exists $\sigma \in {\mathfrak S}_n$ such that $\pi f = \sigma f$.  Because $I$ is ${\mathfrak S}_\infty$-invariant, $\sigma f \in I$ so $\pi f \in I$.
+\end{proof}
+
+Given a finite set $F$ that generates a ${\mathfrak S}_\infty$-invariant ideal $I$ as a $R[{\mathfrak S}_\infty]$-module, we can easily construct a finite set that generates $I$ as a $R[G]$-module as follows.
+\begin{proposition}
+ Let $F$ be a finite set of polynomials and let $n$ be the index of the largest variable occurring in $F$.  Then $\ideal{F}_{R[{\mathfrak S}_\infty]} = \ideal{{\mathfrak S}_n F}_{R[G]}$.
+\end{proposition}
+\begin{proof}
+ Clearly $\ideal{{\mathfrak S}_n F}_{R[G]} \subset \ideal{F}_{R[{\mathfrak S}_\infty]}$.
+
+ To prove the other containment, it's enough to show for any $f \in F$ and $\sigma \in {\mathfrak S}_\infty$, that $\sigma f \in \ideal{{\mathfrak S}_n F}_{R[G]}$ since the elements of this form generate $\ideal{F}_{R[{\mathfrak S}_\infty]}$ as an ideal.  Let $\tau \in {\mathfrak S}_n$ be the permutation that puts the integers 1 to $n$ in the same order as $\sigma$ does, i.e. $\tau(i) < \tau(j)$ exactly when $\sigma(i) < \sigma(j)$ for all $i,j \in \{1,\ldots,n\}$.  Then there is some monoid element $\pi \in G$ such that $\sigma(i) = \pi \circ \tau(i)$ for all $i \in \{1,\ldots,n\}$.  Therefore $\sigma f = \pi (\tau f) \in \ideal{{\mathfrak S}_n F}_{R[G]}$.
+\end{proof}
+
+Given a ${\mathfrak S}_\infty$-invariant ideal $I = \ideal{F}_{{\mathfrak S}_\infty}$, we will use the set ${\mathfrak S}_n F$ which generates $I$ as a $R[G]$-module to find a $G$-Gr\"obner basis of $I$ (defined below) and from that obtain a ${\mathfrak S}_\infty$-Gr\"obner basis.
+\begin{definition}
+ A $G$-Gr\"obner basis of a $G$-invariant ideal $I$ is a finite set $B \subset I$ such that for any $f \in I$, there exists $g \in B$ with $\pi \LT{g}$ dividing $\LT{f}$ for some $\pi \in G$.
+\end{definition}
+
+Note that if $I$ is also ${\mathfrak S}_\infty$-invariant, then a $G$-Gr\"obner basis of $I$ is also a ${\mathfrak S}_\infty$-Gr\"obner basis.  Given $f \in I$, $g \in B$ and $\pi \in G$ with $\pi \LT{g}|\LT{f}$, $\pi$ can also be expressed as a permutation $\sigma \in {\mathfrak S}_\infty$ and $\sigma$ witnesses $\LT{g} \preceq \LT{f}$ since it only increases the indices of the variables in $\LT{g}$ and maintains their relative order.
+
+Using the work of Brouwer and Draisma, there is an algorithm for finding a $G$-Gr\"obner basis of $I$ provided that the action of $G$ satisfies certain criteria, which we will show it does.
+\begin{proposition}[Satisfaction of Criterion EGB4]
+ For all $f,h \in R$, the set $Gf \times Gh$ is the union of a finite number of $G$-orbits (where $G$ acts diagonally on $R \times R$), and generators of these orbits can be computed effectively.
+\end{proposition}
+\begin{proof}
+ Let $n$ be the index of the largest variable occurring in $f$ and $g$.  Let $H$ be the set of strictly increasing maps $\tau:[n] \to [2n]$, which is finite.  We will show that any pair $(\pi_1 f, \pi_2 g) \in Gf \times Gh$ can be expressed as $(\sigma \tau_1 f, \sigma \tau_2 g)$ for some $\sigma \in G$ and $\tau_1,\tau_2 \in H$.  Note that $\pi_1 f$ and $\pi_2 g$ are fully determined by the images $\pi_1([n])$ and $\pi_2([n])$.  Let
+ \[ S_i = \{j \in [n]: \pi_i(j) \in \pi_1([n]) \cap \pi_2([n])\} \]
+ for $i = 1,2$, and let $k = |S_1| = |S_2|$.
+\end{proof}
+
+
+
 
 \section{Algorithms}
 
