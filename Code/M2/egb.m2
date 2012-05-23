@@ -174,9 +174,10 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
      print sp;
      i := 0;
      nF := #F;
+     F' := {};
      scan(nF, i->
-	  scan(nF, j->(
-		    -- if i!=j then
+	  scan(i+1, j->(
+		    --if i!=j then
 		    for st in sp do (
 		    	 (s,t) := st;
 		    	 f := spoly(s F#i, t F#j);
@@ -185,19 +186,20 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
 		    	 if r != 0 then (
 			      print "(n)"; 
 			      if i==j then print(F#i,F#j,r,matrix s,matrix t);
-			      F = append(F,r)
+			      F' = append(F',r)
 			      );
 		    	 );
 	       	    ))
 	  );
-     if o.Symmetrize then interreduce symmetrize F else interreduce F
+     if o.Symmetrize then interreduce symmetrize (F|F') else interreduce (F|F')
      )
 
 shiftPairs = (R,k) -> (
      assert(k==1); -- assume k=1
      n := numgens R;
-     apply(n, i->(map (R,R),
-	       map(R,R,{0}|apply(toList(0..i-1) | toList (i+1..n-1), j->R_j))))
+     flatten apply(n, i->apply(n, i'->(map(R,R,{0}|apply(toList(0..i-1) | toList (i+1..n-1), j->R_j)),
+		    --map (R,R),
+	       	    map(R,R,{0}|apply(toList(0..i'-1) | toList (i'+1..n-1), j->R_j)))))
      )
 
 symmetrize = method()
@@ -205,7 +207,7 @@ symmetrize List := F -> flatten (F/symmetrize)
 symmetrize RingElement := f -> (
      R := ring f;
      supp'f := support f;
-     apply(permutations supp'f, p->
+     apply(permutations gens R, p->
 	  (map(R,R,apply(#supp'f,i->supp'f#i=>p#i))) f
 	  )
      )
@@ -223,7 +225,9 @@ interreduce = F -> (
 	       M#i = reduce(M#i,drop(M,{i,i}))
 	  );
      M = toList select(M, f->f!=0);
-     apply(M, f->makeMonic(leadTerm f + reduce(f-leadTerm f,M,Completely=>true)))
+     newF := apply(M, f->makeMonic(leadTerm f + reduce(f-leadTerm f,M,Completely=>true)));
+     R' := (coefficientRing R)[support ideal newF]; 
+     apply(newF, f->sub(f,R'))
      ) 
 
 makeMonic = f -> f/leadCoefficient f 

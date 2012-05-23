@@ -4,9 +4,15 @@ restart
 load "egb.m2"
 R = QQ[x_2,x_1,x_0, MonomialOrder => Lex]
 F = {x_0^3*x_2+x_0^2*x_1^3, x_1^2*x_2^2-x_1^2*x_0+x_0*x_2^2};
-F = processSpairs(F,1)
-F = processSpairs(F,1,Symmetrize=>false)
-
+F = symmetrize F
+F = interreduce symmetrize F
+F = interreduce symmetrize interreduce symmetrize F
+F = processSpairs(F,1) -- tries to find an S-basis (a G-basis for the S-ideal)
+F = processSpairs(F,1,Symmetrize=>false) -- tries to find the G-basis
+F = interreduce symmetrize F
+F = {x_2*x_1*x_0 + x_1*x_0};
+F = {x_1*x_0+x_2*x_1+x_2*x_0};
+F = {random(2,R)+random(1,R)}
 
 --------------------------------
 
