@@ -218,12 +218,11 @@ Using the work of Brouwer and Draisma, there is an algorithm for finding a $G$-G
  For all $f,h \in R$, the set $Gf \times Gh$ is the union of a finite number of $G$-orbits (where $G$ acts diagonally on $R \times R$), and generators of these orbits can be computed effectively.
 \end{proposition}
 \begin{proof}
- Let $n$ be the index of the largest variable occurring in $f$ and $g$.  Let $H$ be the set of strictly increasing maps $\tau:[n] \to [2n]$, which is finite.  We will show that any pair $(\pi_1 f, \pi_2 g) \in Gf \times Gh$ can be expressed as $(\sigma \tau_1 f, \sigma \tau_2 g)$ for some $\sigma \in G$ and $\tau_1,\tau_2 \in H$.  Note that $\pi_1 f$ and $\pi_2 g$ are fully determined by the images $\pi_1([n])$ and $\pi_2([n])$.  Let
- \[ S_i = \{j \in [n]: \pi_i(j) \in \pi_1([n]) \cap \pi_2([n])\} \]
- for $i = 1,2$, and let $k = |S_1| = |S_2|$.
+ Let $n$ be the index of the largest variable occurring in $f$ and $g$.  Let $H$ be the set of strictly increasing maps $\tau:[n] \to [2n]$, which is finite.  A given pair $(\pi_1 f, \pi_2 g) \in Gf \times Gh$ is determined by the images $\pi_1([n])$ and $\pi_2([n])$.  Let $S = \pi_1([n]) \cup \pi_2([n])$ and denote the elements in this set $s_1 < \cdots < s_k$.  Note that $|S| = k \leq 2n$.  Let $\sigma:[k] \to S$ be defined by $i \mapsto s_i$.  Let $\tau_i:[n] \to [k]$ be the map $\sigma^{-1} \circ \pi_i$.  Then $(\pi_1 f, \pi_2 g) = \sigma(\tau_1 f,\tau_2 g)$ and $\sigma$ can be extended to an element of $G$ so the pairs $(\tau_1 f,\tau_2 g)$ include all $G$ orbits of $Gf \times Gh$.  The number of orbits is finite since $H$ is finite, and they can easily be computed by enumerating over all possible pairs $\tau_1,\tau_2 \in H$.
 \end{proof}
 
-
+Although $|H\times H|$ has size $\binomial{2n}{n}^2$, we can use a considerably smaller subset of pairs of maps $\tau_1$ and $\tau_2$.  In particular, given any $\pi_1, \pi_2 \in G$, $\tau_1$ and $\tau_2$ are determined only by which subsets $S_1, S_2 \subset [n]$ are mapped into $\pi_1([n]) \cap \pi_2([n])$ by $\pi_1$ and $\pi_2$.  Note that $|S_1| = |S_2|$, so the number of subsets is
+\[ \sum_{k=0}^n \binom{n}{k}^2 = \binom{2n}{n} = O(4^n/\sqrt{n}). \]
 
 
 \section{Algorithms}

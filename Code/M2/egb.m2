@@ -36,6 +36,28 @@ divWitness = (v,w) -> (
      return (true, sigma);
      )
 
+gDivWitness = (v,w) -> (
+     v = (listForm v)#0#0;
+     w = (listForm w)#0#0;
+     n := length v;
+     sigma := new MutableHashTable;
+     i := n-1;
+     for j in reverse(0..n-1) do
+	  if v#i <= w#j then (
+	       sigma#j = i; 
+	       i = i-1;
+	       );
+     for j in reverse(0..n-1) do
+	  if not sigma#? j then (
+	       if v#i != 0 then return (false, {});
+	       sigma#j = i;
+	       i = i-1;
+	       );
+     sigma = listFromMHT(sigma);
+     assert(length sigma == n);
+     return (true, sigma);
+     )
+
 permute = (b,sigma) -> (
      X := gens ring b;
      s := apply(length X, i -> (X#(sigma#i) => X#i));
@@ -80,7 +102,7 @@ reduce (RingElement, BasicList) := o -> (f,B) -> (
      while f != 0 do (
 	  divOccurred := false;
 	  for b in B' do (
-	       (isDiv, sigma) = divWitness(b,f);
+	       (isDiv, sigma) = gDivWitness(b,f);
 	       --print (isDiv, sigma);
 	       if isDiv then (
 		    sb := permute(b,sigma);
@@ -168,7 +190,7 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
 		    	 );
 	       	    ))
 	  );
-     if o.Symmetrize then interreduce symmetrize F else interreduce F
+     F --if o.Symmetrize then interreduce symmetrize F else interreduce F
      )
 
 shiftPairs = (R,k) -> (
@@ -194,7 +216,7 @@ interreduce = F -> (
      local i;
      while( 
 	   (i = position(0..m-1,i'-> 
-		     any(m, j->j=!=i' and M#j != 0 and M#i'!= 0 and first divWitness(M#j,M#i'))
+		     any(m, j->j=!=i' and M#j != 0 and M#i'!= 0 and first gDivWitness(M#j,M#i'))
 		     )     
 	   ) =!= null  
      	  ) do (
