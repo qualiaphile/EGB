@@ -190,7 +190,7 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
 		    	 );
 	       	    ))
 	  );
-     F --if o.Symmetrize then interreduce symmetrize F else interreduce F
+     if o.Symmetrize then interreduce symmetrize F else interreduce F
      )
 
 shiftPairs = (R,k) -> (
