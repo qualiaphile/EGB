@@ -72,12 +72,14 @@ allPerms = n -> (
      return new List from Perms;
      )
 
-reduce = (f,B) -> (
+reduce = method(Options=>{Completely=>false})
+reduce (RingElement, BasicList) := o -> (f,B) -> (
+     B' := select(toList B,b->b!=0);
      R := ring f;
      r := 0;
      while f != 0 do (
 	  divOccurred := false;
-	  for b in B do (
+	  for b in B' do (
 	       (isDiv, sigma) = divWitness(b,f);
 	       --print (isDiv, sigma);
 	       if isDiv then (
@@ -92,11 +94,8 @@ reduce = (f,B) -> (
 	       f = f - leadTerm f;
 	       );
 	  );
-     return r;
-     )
-
-interreduceGB = G -> ( -- !!!
-
+     if not o.Completely or r == 0 then r
+     else leadTerm r + reduce(r - leadTerm r, B', Completely=>true) 
      )
 
 reduceGB = G -> (
@@ -141,41 +140,68 @@ truncatedGB = F -> (
      return reduceGB F;
      )
 
-end
+processSpairs = method(Options=>{Symmetrize=>true})
+processSpairs (List,ZZ) := o -> (F,k) -> (
+     R := ring F#0;
+     n := numgens R;
+     x := symbol x;
+     R' := (coefficientRing R)[reverse(x_0..x_(n+k-1)), MonomialOrder => Lex];
+     RtoR' := map(R',R, drop(gens R',1));
+     F = F/RtoR';
+     sp := shiftPairs(R',k);
+     print sp;
+     i := 0;
+     nF := #F;
+     scan(nF, i->
+	  scan(nF, j->(
+		    -- if i!=j then
+		    for st in sp do (
+		    	 (s,t) := st;
+		    	 f := spoly(s F#i, t F#j);
+		    	 r := reduce(f,F);
+		    	 --if f != 0 then print (i,j,s,t);
+		    	 if r != 0 then (
+			      print "(n)"; 
+			      if i==j then print(F#i,F#j,r,matrix s,matrix t);
+			      F = append(F,r)
+			      );
+		    	 );
+	       	    ))
+	  );
+     if o.Symmetrize then interreduce symmetrize F else interreduce F
+     )
 
-load "SymmetricGB.m2"
-R = QQ[x_3,x_2,x_1, MonomialOrder => Lex]
-f = x_3^2*x_2^2 + x_2*x_1
-B = {x_3*x_1 + x_2*x_1}
-reduce(f,B)
-f = x_2*x_1
-B = {x_2 + x_1, x_2*x_1}
-reduce(f,B)
+shiftPairs = (R,k) -> (
+     assert(k==1); -- assume k=1
+     n := numgens R;
+     apply(n, i->(map (R,R),
+	       map(R,R,{0}|apply(toList(0..i-1) | toList (i+1..n-1), j->R_j))))
+     )
 
-v = x_1*x_3^2
-w = x_2^3*x_3^2
-sigma = divWitness(v,w)
-permute(v,sigma#1)
+symmetrize = method()
+symmetrize List := F -> flatten (F/symmetrize)
+symmetrize RingElement := f -> (
+     R := ring f;
+     supp'f := support f;
+     apply(permutations supp'f, p->
+	  (map(R,R,apply(#supp'f,i->supp'f#i=>p#i))) f
+	  )
+     )
 
-P = new MutableList from (0..4)
-while #P != 0 do (print (new List from P); P = nextPerm(P))
-allPerms 4
+interreduce = F -> (
+     M := new MutableList from F;
+     m := #F;
+     local i;
+     while( 
+	   (i = position(0..m-1,i'-> 
+		     any(m, j->j=!=i' and M#j != 0 and M#i'!= 0 and first divWitness(M#j,M#i'))
+		     )     
+	   ) =!= null  
+     	  ) do (
+	       M#i = reduce(M#i,drop(M,{i,i}))
+	  );
+     M = toList select(M, f->f!=0);
+     apply(M, f->makeMonic(leadTerm f + reduce(f-leadTerm f,M,Completely=>true)))
+     ) 
 
-restart
-load "egb.m2"
-R = QQ[x_2,x_1, MonomialOrder => Lex]
-F = {x_1 + x_2, x_1*x_2}
-truncatedGB F
-R = QQ[x_3,x_2,x_1, MonomialOrder => Lex]
-truncatedGB apply(F, f->sub(f,R))
-R = QQ[x_4,x_3,x_2,x_1, MonomialOrder => Lex]
-truncatedGB apply(F, f->sub(f,R))
-
-R = QQ[x_3,x_2,x_1, MonomialOrder => Lex]
-F = {x_1^3*x_3+x_1^2*x_2^3, x_2^2*x_3^2-x_2^2*x_1+x_1*x_3^2};
-R = QQ[x_4,x_3,x_2,x_1, MonomialOrder => Lex];
-truncatedGB apply(F, f->sub(f,R))
-R = QQ[x_5,x_4,x_3,x_2,x_1, MonomialOrder => Lex];
-truncatedGB apply(F, f->sub(f,R))
-
-
+makeMonic = f -> f/leadCoefficient f 
