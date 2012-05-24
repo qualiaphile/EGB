@@ -168,10 +168,10 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
      n := numgens R;
      x := symbol x;
      R' := (coefficientRing R)[reverse(x_0..x_(n+k-1)), MonomialOrder => Lex];
-     RtoR' := map(R',R, drop(gens R',1));
+     RtoR' := map(R',R, drop(gens R',k));
      F = F/RtoR';
      sp := shiftPairs(R',k);
-     print sp;
+     print apply(sp,t->matrix first t||matrix last t);
      i := 0;
      nF := #F;
      F' := {};
