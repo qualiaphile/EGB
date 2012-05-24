@@ -195,11 +195,22 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
      )
 
 shiftPairs = (R,k) -> (
-     assert(k==1); -- assume k=1
-     n := numgens R;
-     flatten apply(n, i->apply(n, i'->(map(R,R,{0}|apply(toList(0..i-1) | toList (i+1..n-1), j->R_j)),
-		    --map (R,R),
-	       	    map(R,R,{0}|apply(toList(0..i'-1) | toList (i'+1..n-1), j->R_j)))))
+     --assert(k==1); -- assume k=1
+     n := numgens R-k;
+     sImages := subsets(n+k, k);
+     tImages := subsets(n, k);
+     flatten apply(sImages, sImage->apply(tImages, tImage->(
+		    sPos := 0;
+		    tPos := 0;
+		    sVars := new MutableList;
+		    tVars := new MutableList;
+		    for i from 0 to n+k-1 do
+			 if      sPos < #sImage and sImage#sPos == i      then (sVars#(#sVars) = R_i; sPos = sPos+1)
+			 else if tPos < #tImage and tImage#tPos == i-sPos then (tVars#(#tVars) = R_i; tPos = tPos+1)
+			 else (sVars#(#sVars) = R_i; tVars#(#tVars) = R_i);
+		    map(R,R, apply(k,j->0)|toList(sVars)),
+		    map(R,R, apply(k,j->0)|toList(tVars))
+		    )))
      )
 
 symmetrize = method()
