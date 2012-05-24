@@ -12,6 +12,7 @@
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{example}[theorem]{Example}
+\newtheorem{problem}[theorem]{Problem}
 \newtheorem{xca}[theorem]{Exercise}
 \newtheorem{algorithm}[theorem]{Algorithm}
 
@@ -231,14 +232,34 @@ Although $|H\times H| = \binomial{2n}{n}^2$, we can use a considerably smaller s
 
 We postpone the proof of correctness of the algorithms above until Section \ref{proofcorrect}
 
-\section{Examples}\label{algexamples}
+\section{Examples and Problems}\label{algexamples}
 
 Here we list some examples of our algorithm.\footnote{Code that performs the calculations in this section can be found at ??.}
 
-Consider $F = \{x_1+x_2, x_1 x_2\}$ from the introduction.  One iteration of 
-Algorithm \ref{symGBalg} with $i = 2$ gives $F' = \{x_1+x_2, x_1^2\}$.
-The next two iterations produce $\{x_1\}$ and thus the algorithm returns with this 
-as its asnwer. 
+\begin{example}
+Consider $F = \{x_1+x_2, x_1 x_2\}$ from the introduction.  One step of the Algorithm gives $F' = \{x_1+x_2, x_1^2\}$.
+The next two iterations produce $\{x_1\}$ and thus the algorithm returns with this as its answer.  [*** Check this with M2 code ***]
+\end{example}
+
+If the input polynomials $F$ are linear, then a reduced Gr\"obner basis in the classical sense corresponds to a Gaussian elimination calculation.
+
+\begin{problem}
+What is a $G$-basis for a finite set of linear polynomials $F$?
+\end{problem}
+
+In experiments, we find that generic polynomials give rise to simple invariant ideals.
+
+\begin{problem}
+What is the $G$-basis of a principal invariant ideal $I = \langle f \rangle$, where $f$ is a generic polynomial of degree $d$?
+\end{problem}
+
+\begin{problem}
+Consider the matrix:
+\[ X =  \left[\begin{array}{cccc}x_1 & x_2 & x_3 & \cdots \\x_2 & x_3 & x_4 & \cdots \\x_3 & x_4 & x_5 & \cdots\end{array}\right].\]
+What is the $G$-basis for all $3 \times 3$ minors of $X$?
+\end{problem}
+
+
 
 \section{Proof of Correctness}\label{proofcorrect}
 
