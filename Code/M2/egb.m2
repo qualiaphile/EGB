@@ -184,14 +184,14 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
 		    	 r := reduce(f,F);
 		    	 --if f != 0 then print (i,j,s,t);
 		    	 if r != 0 then (
-			      print "(n)"; 
-			      if i==j then print(F#i,F#j,r,matrix s,matrix t);
+			      << "(n)"; 
+			      -- if i==j then print(F#i,F#j,r,matrix s,matrix t);
 			      F' = append(F',r)
 			      );
 		    	 );
 	       	    ))
 	  );
-     if o.Symmetrize then interreduce symmetrize (F|F') else interreduce (F|F')
+     if o.Symmetrize then interreduce'symmetrize (F|F') else interreduce (F|F')
      )
 
 shiftPairs = (R,k) -> (
@@ -224,6 +224,7 @@ symmetrize RingElement := f -> (
      )
 
 interreduce = F -> (
+     print "-- starting \"slow\" interreduction";
      M := new MutableList from F;
      m := #F;
      local i;
@@ -237,8 +238,15 @@ interreduce = F -> (
 	  );
      M = toList select(M, f->f!=0);
      newF := apply(M, f->makeMonic(leadTerm f + reduce(f-leadTerm f,M,Completely=>true)));
-     R' := (coefficientRing R)[support ideal newF]; 
+     R' := (coefficientRing R)[support ideal newF, MonomialOrder=>Lex]; 
      apply(newF, f->sub(f,R'))
+     ) 
+
+-- should run faster if the reduction is done with the fast internal gb routine
+-- ??? is there a function that just interreduces ???
+interreduce'symmetrize = F -> ( 
+     F' := flatten entries gens gb ideal symmetrize F;
+     time interreduce F'
      ) 
 
 makeMonic = f -> f/leadCoefficient f 
