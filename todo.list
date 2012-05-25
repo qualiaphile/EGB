@@ -1,0 +1,29 @@
+In general:
+
+* learn more about k[x]*[G]; e.g., annihilator ideals
+
+* extend to other types of k[x]*[G]-modules
+
+* in particular, k[x_{ij}] with G acting on j and i=1..m
+
+* define an affine and projective variety? as a zero set? are there infinite-dim proper varieties? (G=S_\infty) Chris!!!
+
+* understand relationship/difference G-Groebner Bases and S-Groebner Bases (S = full symmetric group, G = Inc Monoid)
+
+Software:
+
+* automate going through all the "k"; crash if k=2
+
+* library of examples and a script that goes through all of them and compares with the known output (also with Sage)
+
+* refine the procedure creating (minimal) s-pairs
+
+* "slow" reduction can be preceded by the "fast" one (look at Sage implementation)
+
+Applications:
+
+* reproduce known results, e.g., in algebraic statistics
+
+* coloring edges of bipartite graphs
+ 
+

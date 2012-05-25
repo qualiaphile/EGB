@@ -11,8 +11,13 @@ F = {random(2,R)+random(1,R)}
 F = symmetrize F
 F = interreduce symmetrize F
 F = interreduce symmetrize interreduce symmetrize F
+F = processSpairs(F,0) -- tries to find an S-basis (a G-basis for the S-ideal)
 F = processSpairs(F,1) -- tries to find an S-basis (a G-basis for the S-ideal)
+F = processSpairs(F,0,Symmetrize=>false) -- tries to find the G-basis
 F = processSpairs(F,1,Symmetrize=>false) -- tries to find the G-basis
+F = processSpairs(F,2,Symmetrize=>false) -- tries to find the G-basis
+F = processSpairs(F,3,Symmetrize=>false) -- tries to find the G-basis
+
 
 -- m-minors of an m by n matrix with "shifted rows"
 FF = QQ
