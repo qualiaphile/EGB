@@ -260,8 +260,8 @@ egb (List) := o -> (F) -> (
 	  newF := processSpairs(F,k, Symmetrize => o.Symmetrize);
 	  newstuff := #F != #newF or not all(F,newF, (a,b) -> (toString a == toString b));
 	  print (k,F,newF,newstuff);
-	  if newstuff then k = 0 else k = k+1;
 	  if newstuff and k > 1 then error "new stuff at k > 1";
+	  if newstuff then k = 0 else k = k+1;
 	  F = newF;
 	  n = numgens ring first F;
 	  );
