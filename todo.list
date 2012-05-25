@@ -1,5 +1,7 @@
 In general:
 
+* writeup/prove correctness procedures/algorithms
+
 * learn more about k[x]*[G]; e.g., annihilator ideals
 
 * extend to other types of k[x]*[G]-modules
@@ -9,6 +11,10 @@ In general:
 * define an affine and projective variety? as a zero set? are there infinite-dim proper varieties? (G=S_\infty) Chris!!!
 
 * understand relationship/difference G-Groebner Bases and S-Groebner Bases (S = full symmetric group, G = Inc Monoid)
+
+* compute/define/understand/compute "Hilbert functions" of G/S-ideals from Groebner bases
+
+* find criteria for eliminating redundant S-pairs (e.g. GCD=1 in Draisma's email) 
 
 Software:
 
@@ -25,5 +31,3 @@ Applications:
 * reproduce known results, e.g., in algebraic statistics
 
 * coloring edges of bipartite graphs
- 
-
