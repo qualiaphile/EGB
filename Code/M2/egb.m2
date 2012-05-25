@@ -250,3 +250,20 @@ interreduce'symmetrize = F -> (
      ) 
 
 makeMonic = f -> f/leadCoefficient f 
+
+egb = method(Options=>{Symmetrize=>true})
+egb (List) := o -> (F) -> (
+     if o.Symmetrize then F = interreduce'symmetrize F;
+     n := numgens ring first F;
+     k := 0;
+     while k < n do (
+	  newF := processSpairs(F,k, Symmetrize => o.Symmetrize);
+	  newstuff := #F != #newF or not all(F,newF, (a,b) -> (toString a == toString b));
+	  print (k,F,newF,newstuff);
+	  if newstuff then k = 0 else k = k+1;
+	  if newstuff and k > 1 then error "new stuff at k > 1";
+	  F = newF;
+	  n = numgens ring first F;
+	  );
+     F
+     )

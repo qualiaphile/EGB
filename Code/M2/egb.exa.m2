@@ -8,8 +8,12 @@ F = {x_2*x_1*x_0 + x_1*x_0};
 F = {x_1*x_0+x_2*x_1+x_2*x_0};
 F = {random(2,R)+random(1,R)}
 
+F = egb F
+F = egb(F,Symmetrize=>false)
+
 F = symmetrize F
 F = interreduce symmetrize F
+F = interreduce'symmetrize F
 F = interreduce symmetrize interreduce symmetrize F
 F = processSpairs(F,0) -- tries to find an S-basis (a G-basis for the S-ideal)
 F = processSpairs(F,1) -- tries to find an S-basis (a G-basis for the S-ideal)
