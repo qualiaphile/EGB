@@ -5,7 +5,7 @@ listFromMHT = h -> (
 	  l#i = h#i;
 	  i = i+1;
 	  );
-     return new List from l;
+     return toList l;
      )
 
 divWitness = (v,w) -> (
@@ -37,8 +37,9 @@ divWitness = (v,w) -> (
      )
 
 gDivWitness = (v,w) -> (
-     v = (listForm v)#0#0;
-     w = (listForm w)#0#0;
+     -- << "gDivWitness(" << leadMonomial v << "," << leadMonomial w << ") = ";
+     v = (listForm leadTerm v)#0#0;
+     w = (listForm leadTerm w)#0#0;
      n := length v;
      sigma := new MutableHashTable;
      i := n-1;
@@ -49,19 +50,23 @@ gDivWitness = (v,w) -> (
 	       );
      for j in reverse(0..n-1) do
 	  if not sigma#? j then (
-	       if v#i != 0 then return (false, {});
+	       if v#i != 0 then (
+		    --print "not divisible"; 
+		    return (false, {})
+		    );
 	       sigma#j = i;
 	       i = i-1;
 	       );
      sigma = listFromMHT(sigma);
      assert(length sigma == n);
+     -- print sigma;
      return (true, sigma);
      )
 
 permute = (b,sigma) -> (
      X := gens ring b;
      s := apply(length X, i -> (X#(sigma#i) => X#i));
-     return sub(b,s);
+     sub(b,s)
      )
 
 spoly = (f,g) -> (
@@ -98,26 +103,24 @@ reduce = method(Options=>{Completely=>false})
 reduce (RingElement, BasicList) := o -> (f,B) -> (
      B' := select(toList B,b->b!=0);
      R := ring f;
-     r := 0;
-     while f != 0 do (
-	  divOccurred := false;
-	  for b in B' do (
-	       (isDiv, sigma) = gDivWitness(b,f);
-	       --print (isDiv, sigma);
-	       if isDiv then (
-		    sb := permute(b,sigma);
-		    f = spoly(f,sb);
-		    divOccurred = true;
-		    break;
-		    );
-	       );
-	  if not divOccurred then (
-	       r = r + leadTerm f;
-	       f = f - leadTerm f;
+     divisionOccured := true;
+     while divisionOccured and f != 0 do (
+	  divisionOccured = false;
+	  local divisible; local sigma;
+	  divisors := select(1, B', b->(
+		    (divisible, sigma) = gDivWitness(b,f);
+		    divisible
+		    ));
+	  if #divisors>0 then (
+	       sb := permute(first divisors,sigma); -- currenly "divisors" is a list of one element
+	       --print(leadMonomial sb, leadMonomial f);
+	       --assert(lcm(leadMonomial f, leadMonomial sb)==leadMonomial f);
+	       f = f - (leadTerm f//leadTerm sb)*sb;
+	       divisionOccured = true;
 	       );
 	  );
-     if not o.Completely or r == 0 then r
-     else leadTerm r + reduce(r - leadTerm r, B', Completely=>true) 
+     if not o.Completely or f == 0 then f
+     else leadTerm f + reduce(f - leadTerm f, B', Completely=>true) 
      )
 
 reduceGB = G -> (
@@ -164,6 +167,7 @@ truncatedGB = F -> (
 
 processSpairs = method(Options=>{Symmetrize=>true})
 processSpairs (List,ZZ) := o -> (F,k) -> (
+     if o.Symmetrize then F = interreduce'symmetrize F; 
      R := ring F#0;
      n := numgens R;
      x := symbol x;
@@ -172,7 +176,6 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
      F = F/RtoR';
      sp := shiftPairs(R',k);
      print apply(sp,t->matrix first t||matrix last t);
-     i := 0;
      nF := #F;
      F' := {};
      scan(nF, i->
@@ -191,7 +194,7 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
 		    	 );
 	       	    ))
 	  );
-     if o.Symmetrize then interreduce'symmetrize (F|F') else interreduce (F|F')
+     interreduce (F|F')
      )
 
 shiftPairs = (R,k) -> (
@@ -219,7 +222,7 @@ symmetrize RingElement := f -> (
      R := ring f;
      supp'f := support f;
      apply(permutations gens R, p->
-	  (map(R,R,apply(#supp'f,i->supp'f#i=>p#i))) f
+	  (map(R,R,p)) f
 	  )
      )
 
@@ -234,7 +237,10 @@ interreduce = F -> (
 		     )     
 	   ) =!= null  
      	  ) do (
-	       M#i = reduce(M#i,drop(M,{i,i}))
+	       M#i = makeMonic reduce(M#i,drop(M,{i,i})
+		    --,Completely=>true
+		    );
+	       print toString (select(toList M, f->f!=0) / leadMonomial)
 	  );
      M = toList select(M, f->f!=0);
      newF := apply(M, f->makeMonic(leadTerm f + reduce(f-leadTerm f,M,Completely=>true)));
@@ -246,10 +252,11 @@ interreduce = F -> (
 -- ??? is there a function that just interreduces ???
 interreduce'symmetrize = F -> ( 
      F' := flatten entries gens gb ideal symmetrize F;
+     print F';
      time interreduce F'
      ) 
 
-makeMonic = f -> f/leadCoefficient f 
+makeMonic = f -> if f== 0 then 0 else f/leadCoefficient f 
 
 egb = method(Options=>{Symmetrize=>true})
 egb (List) := o -> (F) -> (
