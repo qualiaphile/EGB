@@ -10,8 +10,9 @@ F = {x_2*x_1*x_0 + x_1*x_0};
 F = {x_1*x_0+x_2*x_1+x_2*x_0};
 F = {random(2,R)+random(1,R)}
 
-egb F
-egb(F,Symmetrize=>false)
+egb F                     -- Symmetrize => true : at every step the set of generators is symmetrized
+egb(interreduce'symmetrize F,Symmetrize=>false) -- symmetrization at the first step ONLY
+egb(F,Symmetrize=>false)                        -- no symmetrization, a G-basis of F is computed, where G=Inc(N)
 
 F = symmetrize F
 F = interreduce symmetrize F

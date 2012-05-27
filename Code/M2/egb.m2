@@ -260,13 +260,17 @@ makeMonic = f -> if f== 0 then 0 else f/leadCoefficient f
 
 egb = method(Options=>{Symmetrize=>true})
 egb (List) := o -> (F) -> (
-     if o.Symmetrize then F = interreduce'symmetrize F;
      n := numgens ring first F;
      k := 0;
      while k < n do (
 	  newF := processSpairs(F,k, Symmetrize => o.Symmetrize);
-	  newstuff := #F != #newF or not all(F,newF, (a,b) -> (toString a == toString b));
-	  print (k,F,newF,newstuff);
+	  R := ring first F; 
+	  R' := ring first newF; 
+	  newstuff := numgens R != numgens R' or (
+	       	  RtoR' := map(R',R, gens R'); 
+		  sort apply(F,f->RtoR' f) != sort newF
+		  );
+	  print (k,sort F,sort newF,newstuff);
 	  if newstuff and k > 1 then error "new stuff at k > 1";
 	  if newstuff then k = 0 else k = k+1;
 	  F = newF;
