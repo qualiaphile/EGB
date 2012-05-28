@@ -194,7 +194,7 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
 		    	 );
 	       	    ))
 	  );
-     interreduce (F|F')
+     interreduce(F|F', Symmetrize => o.Symmetrize)
      )
 
 shiftPairs = (R,k) -> (
@@ -226,7 +226,8 @@ symmetrize RingElement := f -> (
 	  )
      )
 
-interreduce = F -> (
+interreduce = method(Options=>{Symmetrize=>true})
+interreduce List := o -> F -> (
      print "-- starting \"slow\" interreduction";
      M := new MutableList from F;
      m := #F;
@@ -244,7 +245,13 @@ interreduce = F -> (
 	  );
      M = toList select(M, f->f!=0);
      newF := apply(M, f->makeMonic(leadTerm f + reduce(f-leadTerm f,M,Completely=>true)));
-     R' := (coefficientRing R)[support ideal newF, MonomialOrder=>Lex]; 
+     R := ring first newF;
+     R' := R;
+     if o.Symmetrize then R' = (coefficientRing R)[support ideal newF, MonomialOrder=>Lex]
+     else (
+	  firstVarPosition := position(gens R, x->(x == first support ideal newF));
+	  R' = (coefficientRing R)[take(gens R, {firstVarPosition, numgens R - 1}), MonomialOrder=>Lex];
+	  ); 
      apply(newF, f->sub(f,R'))
      ) 
 
