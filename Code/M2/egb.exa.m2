@@ -9,7 +9,8 @@ F = {x_2*x_1*x_0^2, x_2^2*x_0-x_1^2*x_0, x_1*x_0^3, x_1^2*x_0^2} -- simplified I
 F = {x_2*x_1*x_0 + x_1*x_0};
 F = {x_1*x_0+x_2*x_1+x_2*x_0};
 F = {random(2,R)+random(1,R)}
-F = {x_2}
+R = QQ[x_3,x_2,x_1,x_0, MonomialOrder => Lex]
+F = {x_2*x_1, x_3*x_0+x_0^2} -- example for new stuff at k=2
 
 egb F                     -- Symmetrize => true : at every step the set of generators is symmetrized
 egb(interreduce'symmetrize F,Symmetrize=>false) -- symmetrization at the first step ONLY
