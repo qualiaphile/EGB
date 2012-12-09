@@ -32,7 +32,7 @@ egb(F,Symmetrize=>false)                        -- no symmetrization, a G-basis 
 restart
 load "egb.m2"
 R = QQ[reverse(x_(0,0)..x_(1,2)),MonomialOrder=>Lex]
-F = {x_(0,0)^3 - 1, x_(0,1)^3 - 1, x_(0,2)^3 - 1, x_(0,0)^3 + x_(0,0)^2*x_(1,1) + x_(0,0)*x_(1,1)^2, x_(0,1)^3 + x_(0,1)^2*x_(1,2) + x_(0,1)*x_(1,2)^2, x_(0,2)^3 + x_(0,2)^2*x_(1,0) + x_(0,2)*x_(1,0)^2}
+F = {x_(0,0)^3 - 1, x_(0,1)^3 - 1, x_(0,2)^3 - 1, x_(0,0)^2 + x_(0,0)*x_(1,1) + x_(1,1)^2, x_(0,1)^2 + x_(0,1)*x_(1,2) + x_(1,2)^2, x_(0,2)^2 + x_(0,2)*x_(1,0) + x_(1,0)^2}
 egb(F,3,Symmetrize=>false)
 
 F = symmetrize F
