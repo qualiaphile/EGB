@@ -16,15 +16,17 @@ In general:
 
 * find criteria for eliminating redundant S-pairs (e.g. GCD=1 in Draisma's email) 
 
-Software:
+Software: (-- means "done")
 
-* automate going through all the "k"; crash if k=2
+--* automate going through all the "k"; crash if k=2
 
 * library of examples and a script that goes through all of them and compares with the known output (also with Sage)
 
 * refine the procedure creating (minimal) s-pairs
 
 * "slow" reduction can be preceded by the "fast" one (look at Sage implementation)
+
+* documentation
 
 Applications:
 
