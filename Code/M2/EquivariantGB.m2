@@ -14,7 +14,7 @@ newPackage(
      DebuggingMode => true 
      )
 export { egb, buildERing, Symmetrize }
-protect \ { Completely, varIndices, varTable, varPosTable, semigroup, indexBound, diagonalSlices }
+protect \ { Completely, symbols, varIndices, varTable, varPosTable, semigroup, indexBound, diagonalSlices }
      
      
 spoly = (f,g) -> (
@@ -29,30 +29,20 @@ spoly = (f,g) -> (
 divWitness = (v,w) -> (
      R := ring v;
      n := R#indexBound;
-     if not R#? diagonalSlices then (
-	  R#diagonalSlices = apply(n, i->(
-		    flatten apply(#(R#semigroup), b->(
-			      startIndex := (1:b)|apply(R#semigroup#b, e->(if e == 0 then i else 0));
-			      endIndex := (1:b)|apply(R#semigroup#b, e->(if e == 0 then i else e));
-			      toList (startIndex..endIndex)
-			      ))
-		    ));
-	  );
      v = (listForm leadTerm v)#0#0;
      w = (listForm leadTerm w)#0#0;
+     diag := (v,b,i) -> v#(R#varPosTable#((1:b)|(R#semigroup#b:i)));
      sigma := new MutableList from (n:-1);
      i := 0;
      for j from 0 to n-1 do (
-	  if all(#(R#diagonalSlices#i), r->(
-		    v#(R#varPosTable#(R#diagonalSlices#i#r)) <= 
-		    w#(R#varPosTable#(R#diagonalSlices#j#r)))) then (
+	  if all(#(R#semigroup), b->(diag(v,b,i) <= diag(w,b,j))) then (
 	       sigma#i = j;
 	       i = i+1;
 	       );
 	  );
      sigma = toList take(sigma,i);
      while i < n do (
-	  if not all(R#diagonalSlices#i, var->(v#(R#varPosTable#var) == 0)) then return (false, {});
+	  if not all(#(R#semigroup), b->(diag(v,b,i) == 0)) then return (false, {});
 	  i = i+1;
 	  );
      --print(v, w, sigma);
@@ -63,6 +53,7 @@ reduce = method(Options=>{Completely=>false})
 reduce (RingElement, BasicList) := o -> (f,B) -> (
      B = select(toList B,b->b!=0);
      R := ring f;
+     g:=f;
      divisible := true;
      while divisible and f != 0 do (
 	  divisible = false;
@@ -77,27 +68,31 @@ reduce (RingElement, BasicList) := o -> (f,B) -> (
 	  if divisible then (
 	       sd := (shiftMap(R,sigma)) divisor;
 	       f = f - (leadTerm f//leadTerm sd)*sd;
+	       print("reduce:",g,f,divisor,sd);
 	       );
 	  );
      if not o.Completely or f == 0 then f
      else leadTerm f + reduce(f - leadTerm f,B,Completely=>true) 
      )
 
---In: s, a list of sequences of integers describing the action
+--In: X, a list of symbols to name each block of variables
+--    s, a list of sequences of integers describing the action on each block of variables
 --    K, a coefficient field
 --    n, an integer
 --Out: a polynomial ring over K with variable indices determined by s.
 --     All "infinite" indices are included up to n-1. 
 buildERing = method()
-buildERing (Ring,ZZ) := (R,n) -> buildERing(R#semigroup, coefficientRing R, n)
-buildERing (List,Ring,ZZ) := (s,K,n) -> (
-     x := symbol x;
+buildERing (Ring,ZZ) := (R,n) -> buildERing(R#symbols, R#semigroup, coefficientRing R, n)
+buildERing (List,List,Ring,ZZ) := (X,s,K,n) -> (
      variableIndices := flatten apply(#s, b->(
-	       startIndex := ((1:b)|(#(s#b):0));
-	       endIndex := ((1:b)|(apply(s#b, i->(if i == 0 then n-1 else i))));
-	       toList (startIndex..endIndex)
+	       toList (((1:b)|(s#b:0))..((1:b)|(s#b:n-1)))
 	       ));
-     R := K[reverse apply(variableIndices, i->x_i), MonomialOrder => Lex];
+     R := K[reverse apply(variableIndices, i->(
+		    if #i == 1 then X#(i#0)            --if block has only one variable, use no index
+		    else if #i == 2 then X#(i#0)_(i#1) --if block has only one index, index by integers
+		    else (X#(i#0))_(take(i,1-#i))      --if block has several indices, index by sequences
+		    )), MonomialOrder => Lex];
+     R#symbols = X;
      R#varIndices = reverse variableIndices;
      R#varTable = new HashTable from apply(#(R#varIndices), n->(R#varIndices#n => (gens R)#n));
      R#varPosTable = new HashTable from apply(#(R#varIndices), n->(R#varIndices#n => n));
@@ -129,7 +124,8 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
 		    r := reduce(f,F);
 		    --if f != 0 then print (i,j,s,t);
 		    if r != 0 then (
-			 << "(n)"; 
+			 << "(n)";
+			 --print(F#i,F#j,r); 
 			 Fnew = append(Fnew,r)
 			 );
 		    );
@@ -168,10 +164,8 @@ shiftMap = (R,shift) -> (
      mapList := apply(R#varIndices, ind->(
 	       indnew := new MutableList from ind;
 	       for j from 1 to #ind-1 do (
-		    if R#semigroup#(ind#0)#(j-1) == 0 then (
-			 if ind#j >= #shift or shift#(ind#j) < 0 then return 0_R
-			 else indnew#j = shift#(ind#j);
-			 );
+		    if ind#j >= #shift or shift#(ind#j) < 0 then return 0_R
+		    else indnew#j = shift#(ind#j);
 		    );
 	       R#varTable#(toSequence indnew)
 	       ));
@@ -212,9 +206,7 @@ interreduce (List) := o -> F -> (
      for i from 0 to #(R#varIndices)-1 do (
 	  if vSupport#i > 0 then (
 	       ind := R#varIndices#i;
-	       for j from 1 to #ind-1 do (
-		    if R#semigroup#(ind#0)#(j-1) == 0 then nSupport#(ind#j) = nSupport#(ind#j)+1;
-		    );
+	       for j from 1 to #ind-1 do nSupport#(ind#j) = nSupport#(ind#j)+1;
 	       );
 	  );
      newn := 0;
