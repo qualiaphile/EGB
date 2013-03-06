@@ -16,10 +16,7 @@ F = {x_2*x_1, x_3*x_0+x_0^2} -- example for new stuff at k=2
 
 restart
 needsPackage "EquivariantGB"
-R = buildERing({1:0}, QQ, 3)
-ind = reverse (0..2)
-for i from 0 to #ind-1 do x_(ind#i) = (gens R)#i
---R = QQ[x_2,x_1,x_0, MonomialOrder => Lex]
+R = buildERing({symbol x},{1}, QQ, 3)
 F = {x_2^1*x_0^1, x_2^2 + x_2^1*x_1}                             -- G-basis in 4 variables
 F = {x_2^2*x_0^2, x_2^4 + x_2^3*x_1 + x_2^2*x_1^2}               -- G-basis in 5 variables
 F = {x_2^3*x_0^3, x_2^6 + x_2^5*x_1 + x_2^4*x_1^2 + x_2^3*x_1^3} -- G-basis in 6 variables
@@ -39,12 +36,11 @@ egb(F,Symmetrize=>false)                        -- no symmetrization, a G-basis 
 
 restart
 needsPackage "EquivariantGB"
---R = QQ[reverse(x_(0,0,0)..x_(0,1,2)),MonomialOrder=>Lex]
-R = buildERing({(0,3)}, QQ, 2)
-ind = reverse (0,0,0)..(0,1,2)
-for i from 0 to #ind-1 do x_(ind#i) = (gens R)#i
-F = {x_(0,0,0)^3 - 1, x_(0,0,1)^3 - 1, x_(0,0,2)^3 - 1, x_(0,0,0)^2 + x_(0,0,0)*x_(0,1,1) + x_(0,1,1)^2, x_(0,0,1)^2 + x_(0,0,1)*x_(0,1,2) + x_(0,1,2)^2, x_(0,0,2)^2 + x_(0,0,2)*x_(0,1,0) + x_(0,1,0)^2}
+R = buildERing({symbol x,symbol y,symbol z},{1,1,1}, QQ, 2)
+F = {x_0^3 - 1, y_0^3 - 1, z_0^3 - 1, x_0^2 + x_0*y_1 + y_1^2, y_0^2 + y_0*z_1 + z_1^2, z_0^2 + z_0*x_1 + x_1^2}
 egb(F,Symmetrize=>false)
+debug EquivariantGB
+interreduce F
 
 F = symmetrize F
 F = interreduce symmetrize F

@@ -29,24 +29,46 @@ spoly = (f,g) -> (
 divWitness = (v,w) -> (
      R := ring v;
      n := R#indexBound;
-     v = (listForm leadTerm v)#0#0;
-     w = (listForm leadTerm w)#0#0;
-     diag := (v,b,i) -> v#(R#varPosTable#((1:b)|(R#semigroup#b:i)));
-     sigma := new MutableList from (n:-1);
-     i := 0;
-     for j from 0 to n-1 do (
-	  if all(#(R#semigroup), b->(diag(v,b,i) <= diag(w,b,j))) then (
+     vl := (listForm leadTerm v)#0#0;
+     wl := (listForm leadTerm w)#0#0;
+     diag := (vl,b,i) -> vl#(R#varPosTable#((1:b)|(R#semigroup#b:i)));
+     if all(R#semigroup, b->(b <= 1)) then (
+     	  sigma := new MutableList from (n:-1);
+     	  i := 0;
+     	  for j from 0 to n-1 do (
+	       if all(#(R#semigroup), b->(diag(vl,b,i) <= diag(wl,b,j))) then (
+	       	    sigma#i = j;
+	       	    i = i+1;
+	       	    );
+	       );
+	  j := n;
+     	  while i < n do (
+	       if not all(#(R#semigroup), b->(diag(vl,b,i) == 0)) then return (false, {});
 	       sigma#i = j;
 	       i = i+1;
+	       j = j+1;
+	       );
+     	  --print(v, w, sigma);
+     	  return (true, toList sigma);
+     	  )
+     else (
+	  sigma := new MutableList from (n:-1);
+     	  i := 0;
+	  while true do (
+     	       for j from 0 to n-1 do (
+	       	    if all(#(R#semigroup), b->(diag(vl,b,i) <= diag(wl,b,j))) then (
+	       	    	 sigma#i = j;
+	       	    	 i = i+1;
+	       	    	 );
+	       	    );
+     	       while i < n do (
+	       	    if not all(#(R#semigroup), b->(diag(vl,b,i) == 0)) then return (false, {});
+	       	    i = i+1;
+	       	    );
+     	       --print(v, w, sigma);
+     	       vlnew := (shiftMap(R,toList sigma)) v
 	       );
 	  );
-     sigma = toList take(sigma,i);
-     while i < n do (
-	  if not all(#(R#semigroup), b->(diag(v,b,i) == 0)) then return (false, {});
-	  i = i+1;
-	  );
-     --print(v, w, sigma);
-     return (true, sigma);
      )
 
 reduce = method(Options=>{Completely=>false})
@@ -164,7 +186,7 @@ shiftMap = (R,shift) -> (
      mapList := apply(R#varIndices, ind->(
 	       indnew := new MutableList from ind;
 	       for j from 1 to #ind-1 do (
-		    if ind#j >= #shift or shift#(ind#j) < 0 then return 0_R
+		    if ind#j >= #shift or shift#(ind#j) < 0 or shift#(ind#j) >= R#indexBound then return 0_R
 		    else indnew#j = shift#(ind#j);
 		    );
 	       R#varTable#(toSequence indnew)
