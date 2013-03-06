@@ -28,6 +28,7 @@ spoly = (f,g) -> (
 --     b, a boolean, whether there is a semigroup element M s.t. M*in(v) divides in(w)
 divWitness = (v,w) -> (
      R := ring v;
+     assert(numgens R == numgens ring w);
      n := R#indexBound;
      vl := (listForm leadTerm v)#0#0;
      wl := (listForm leadTerm w)#0#0;
@@ -51,31 +52,32 @@ divWitness = (v,w) -> (
      	  --print(v, w, sigma);
      	  return (true, toList sigma);
      	  )
-     else (
-	  sigma := new MutableList from (n:-1);
-     	  i := 0;
-	  while true do (
-     	       for j from 0 to n-1 do (
-	       	    if all(#(R#semigroup), b->(diag(vl,b,i) <= diag(wl,b,j))) then (
-	       	    	 sigma#i = j;
-	       	    	 i = i+1;
-	       	    	 );
-	       	    );
-     	       while i < n do (
-	       	    if not all(#(R#semigroup), b->(diag(vl,b,i) == 0)) then return (false, {});
-	       	    i = i+1;
-	       	    );
-     	       --print(v, w, sigma);
-     	       vlnew := (shiftMap(R,toList sigma)) v
-	       );
-	  );
+     else error "not supported"
+--     else (
+--	  sigma := new MutableList from (n:-1);
+--     	  i := 0;
+--	  while true do (
+--     	       for j from 0 to n-1 do (
+--	       	    if all(#(R#semigroup), b->(diag(vl,b,i) <= diag(wl,b,j))) then (
+--	       	    	 sigma#i = j;
+--	       	    	 i = i+1;
+--	       	    	 );
+--	       	    );
+--     	       while i < n do (
+--	       	    if not all(#(R#semigroup), b->(diag(vl,b,i) == 0)) then return (false, {});
+--	       	    i = i+1;
+--	       	    );
+--     	       --print(v, w, sigma);
+--     	       vlnew := (shiftMap(R,toList sigma)) v
+--	       );
+--	  );
      )
 
 reduce = method(Options=>{Completely=>false})
 reduce (RingElement, BasicList) := o -> (f,B) -> (
      B = select(toList B,b->b!=0);
      R := ring f;
-     g:=f;
+     n := R#indexBound;
      divisible := true;
      while divisible and f != 0 do (
 	  divisible = false;
@@ -88,14 +90,34 @@ reduce (RingElement, BasicList) := o -> (f,B) -> (
 	       );
 	  );
 	  if divisible then (
+	       iS := indexSupport({divisor});
+	       maxi := position(iS, i->(i != 0), Reverse=>true);
+	       if sigma#maxi >= n then return null;
 	       sd := (shiftMap(R,sigma)) divisor;
 	       f = f - (leadTerm f//leadTerm sd)*sd;
-	       print("reduce:",g,f,divisor,sd);
+	       --print("reduce:",g,f,divisor,sd);
 	       );
 	  );
      if not o.Completely or f == 0 then f
      else leadTerm f + reduce(f - leadTerm f,B,Completely=>true) 
      )
+
+--runs reduce, but possibly expands the ring in the process
+reduce2 = method(Options=>{Completely=>false})
+reduce2 (RingElement,List) := o -> (f,F) -> (
+     R := ring f;
+     r := reduce(f,F,Completely=>o.Completely);
+     while r === null do (
+     	  Rnew := buildERing(R,(R#indexBound)+1);
+     	  RtoRnew := ringMap(Rnew,R);
+     	  F = RtoRnew\F;
+     	  f = RtoRnew f;
+     	  r = reduce(f,F,Completely=>o.Completely);
+	  R = Rnew
+	  );
+     (r,R,f,F)
+     )
+
 
 --In: X, a list of symbols to name each block of variables
 --    s, a list of sequences of integers describing the action on each block of variables
@@ -133,8 +155,7 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
      R := ring F#0;
      n := R#indexBound;
      S := buildERing(R,n+k);
-     RtoS := map(S,R, apply(R#varIndices, i->S#varTable#i));
-     F = F/RtoS;
+     F = F / ringMap(S,R);
      sp := shiftPairs(n,k);
      --print apply(sp,t->matrix first t||matrix last t);
      Fnew := {};
@@ -143,7 +164,8 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
 	       for st in sp do (
 		    (s,t) := st;
 		    f := spoly((shiftMap(S,s)) F#i, (shiftMap(S,t)) F#j);
-		    r := reduce(f,F);
+		    local r;
+		    (r,S,f,F) = reduce2(f,F);
 		    --if f != 0 then print (i,j,s,t);
 		    if r != 0 then (
 			 << "(n)";
@@ -153,6 +175,7 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
 		    );
 	       );
 	  );
+     Fnew = apply(Fnew, f->((ringMap(S,ring f)) f));
      interreduce(F|Fnew, Symmetrize => o.Symmetrize)
      )
 
@@ -194,6 +217,8 @@ shiftMap = (R,shift) -> (
      map(R,R,mapList)
      )
 
+ringMap = (S,R) -> map(S,R, apply(R#varIndices, i->(if S#varTable#? i then S#varTable#i else 0_S)))
+
 -- In: F, a list of generators
 -- Out: the symmetrization of F 
 symmetrize = method()
@@ -204,26 +229,51 @@ symmetrize RingElement := f -> (
      apply(permutations toList (0..n-1), p->((shiftMap(R,p)) f))
      )
 
+
 -- In: F, a list of generators
 -- Out: ...
 interreduce = method(Options=>{Symmetrize=>true})
 interreduce (List) := o -> F -> (
      --Reduce elements of F with respect to each other.
      print "-- starting \"slow\" interreduction";
-     M := new MutableList from F;
+     R := ring first F;
+     n := R#indexBound;
      while true do (
-	  M = new MutableList from select(toList M, f->f!=0);
-     	  i := position(0..(#M-1), k-> 
-	       any(#M, j-> j != k and first divWitness(M#j,M#k)));
-	  if i =!= null then M#i = makeMonic reduce(M#i,drop(M,{i,i}))
+	  F = select(F, f->f!=0);
+     	  i := position(0..#F-1, k-> 
+	       any(#F, j-> j != k and first divWitness(F#j,F#k)));
+	  if i =!= null then (
+	       Fout := drop(F,{i,i});
+	       local r; local f;
+	       (r,R,f,Fout) = reduce2(F#i,Fout);
+	       F = insert(i, makeMonic r, Fout);
+	       )
 	  else break;
 	  );
-     M = toList M;
-     newF := apply(M, f->makeMonic(leadTerm f + reduce(f-leadTerm f,M,Completely=>true)));
+     F = apply(#F, i->(
+	       g := F#i - leadTerm(F#i);
+	       local r;
+	       (r,R,g,F) = reduce2(g,F,Completely=>true);
+	       makeMonic(leadTerm(F#i) + r)
+	       ));
      --Prune unused variables from R.
-     R := ring first newF;
+     iS := indexSupport F;
+     newn := 0;
+     if o.Symmetrize then (
+	  shift := toList apply(iS, j->(if j > 0 then (newn = newn+1; newn-1) else -1));
+	  newF = newF / shiftMap(R,shift);
+	  )
+     else newn = position(iS, i->(i > 0), Reverse=>true) + 1;
+     S := buildERing(R,newn);
+     F / ringMap(S,R)
+     ) 
+
+--In: F, a list of polynomials
+--Out: a list, the number of variables represented in F which have an index equal to i for each i from 0 to n-1
+indexSupport = F -> (
+     R := ring first F;
      n := R#indexBound;
-     vSupport := sum(apply(newF, f->sum(listForm(f)/first))); --list of # occurrances of each variable in newF
+     vSupport := sum(apply(F, f->sum(listForm(f)/first))); --list of # occurrances of each variable in newF
      nSupport := new MutableList from (n:0); --list of # occurances of each index value in variable support
      for i from 0 to #(R#varIndices)-1 do (
 	  if vSupport#i > 0 then (
@@ -231,16 +281,8 @@ interreduce (List) := o -> F -> (
 	       for j from 1 to #ind-1 do nSupport#(ind#j) = nSupport#(ind#j)+1;
 	       );
 	  );
-     newn := 0;
-     if o.Symmetrize then (
-	  shift := toList apply(nSupport, j->(if j > 0 then (newn = newn+1; newn-1) else -1));
-	  newF = newF / shiftMap(R,shift);
-	  )
-     else for j from 0 to n-1 do if nSupport#j > 0 then newn = j+1;
-     S := buildERing(R,newn);
-     RtoS := map(S,R, apply(R#varIndices, i->(if S#varTable#? i then S#varTable#i else 0_S)));
-     newF / RtoS
-     ) 
+     toList nSupport
+     )
 
 -- should run faster if the reduction is done with the fast internal gb routine
 -- ??? is there a function that just interreduces ???
@@ -262,10 +304,7 @@ egb (List) := o -> F -> (
 	  newF := processSpairs(F,k, Symmetrize => o.Symmetrize);
 	  R := ring first F; 
 	  S := ring first newF; 
-	  newstuff := numgens R != numgens S or (
-	       	  RtoS := map(S,R, apply(R#varIndices, i->(if S#varTable#? i then S#varTable#i else 0_S)));
-		  sort (F / RtoS) != sort newF
-		  );
+	  newstuff := numgens R != numgens S or sort (F / ringMap(S,R)) != sort newF;
 	  print (k,sort newF,newstuff);
 	  if newstuff then k = 0 else k = k+1;
 	  F = newF;
