@@ -28,49 +28,36 @@ spoly = (f,g) -> (
 --     b, a boolean, whether there is a semigroup element M s.t. M*in(v) divides in(w)
 divWitness = (v,w) -> (
      R := ring v;
-     assert(numgens R == numgens ring w);
+     assert(numgens ring v == numgens ring w);
      n := R#indexBound;
      vl := (listForm leadTerm v)#0#0;
      wl := (listForm leadTerm w)#0#0;
      diag := (vl,b,i) -> vl#(R#varPosTable#((1:b)|(R#semigroup#b:i)));
-     if all(R#semigroup, b->(b <= 1)) then (
-     	  sigma := new MutableList from (n:-1);
-     	  i := 0;
-     	  for j from 0 to n-1 do (
-	       if all(#(R#semigroup), b->(diag(vl,b,i) <= diag(wl,b,j))) then (
-	       	    sigma#i = j;
-	       	    i = i+1;
-	       	    );
+     vmax := position(indexSupport({leadTerm v}), i->(i > 0), Reverse=>true);
+     wmax := position(indexSupport({leadTerm w}), i->(i > 0), Reverse=>true);
+     sigma := new MutableList from (n:-1);
+     k := 0;
+     while true do (
+	  while true do (
+	       i := k;
+	       for j from (sigma#k)+1 to wmax do (
+		    if all(#(R#semigroup), b->(diag(vl,b,i) <= diag(wl,b,j))) then (
+			 sigma#i = j;
+			 i = i+1;
+			 );
+		    );
+	       if i <= vmax then k = k-1 else break;
+	       if k < 0 then return (false, {});
 	       );
-	  j := n;
-     	  while i < n do (
-	       if not all(#(R#semigroup), b->(diag(vl,b,i) == 0)) then return (false, {});
-	       sigma#i = j;
-	       i = i+1;
-	       j = j+1;
-	       );
-     	  --print(v, w, sigma);
-     	  return (true, toList sigma);
-     	  )
-     else error "not supported"
---     else (
---	  sigma := new MutableList from (n:-1);
---     	  i := 0;
---	  while true do (
---     	       for j from 0 to n-1 do (
---	       	    if all(#(R#semigroup), b->(diag(vl,b,i) <= diag(wl,b,j))) then (
---	       	    	 sigma#i = j;
---	       	    	 i = i+1;
---	       	    	 );
---	       	    );
---     	       while i < n do (
---	       	    if not all(#(R#semigroup), b->(diag(vl,b,i) == 0)) then return (false, {});
---	       	    i = i+1;
---	       	    );
---     	       --print(v, w, sigma);
---     	       vlnew := (shiftMap(R,toList sigma)) v
---	       );
---	  );
+	  for i from vmax+1 to n-1 do sigma#i = sigma#vmax + i - vmax;
+	  if all(R#varIndices, ind->(
+		    sind := (1:ind#0)|apply(1..#ind-1, j->sigma#(ind#j));
+		    (not R#varPosTable#? sind and vl#(R#varPosTable#ind) == 0)
+		    or vl#(R#varPosTable#ind) <= wl#(R#varPosTable#sind))) 
+		    then break;
+	  k = vmax;
+	  );
+     return (true, toList sigma);
      )
 
 reduce = method(Options=>{Completely=>false})
@@ -261,7 +248,7 @@ interreduce (List) := o -> F -> (
      newn := 0;
      if o.Symmetrize then (
 	  shift := toList apply(iS, j->(if j > 0 then (newn = newn+1; newn-1) else -1));
-	  newF = newF / shiftMap(R,shift);
+	  F = F / shiftMap(R,shift);
 	  )
      else newn = position(iS, i->(i > 0), Reverse=>true) + 1;
      S := buildERing(R,newn);
