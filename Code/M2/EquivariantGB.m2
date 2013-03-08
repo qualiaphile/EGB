@@ -29,10 +29,10 @@ spoly = (f,g) -> (
 divWitness = (v,w) -> (
      R := ring v;
      assert(numgens ring v == numgens ring w);
-     n := R#indexBound;
+     n := R.indexBound;
      vl := (listForm leadTerm v)#0#0;
      wl := (listForm leadTerm w)#0#0;
-     diag := (vl,b,i) -> vl#(R#varPosTable#((1:b)|(R#semigroup#b:i)));
+     diag := (vl,b,i) -> vl#(R.varPosTable#((1:b)|(R.semigroup#b:i)));
      vmax := position(indexSupport({leadTerm v}), i->(i > 0), Reverse=>true);
      wmax := position(indexSupport({leadTerm w}), i->(i > 0), Reverse=>true);
      sigma := new MutableList from (n:-1);
@@ -41,7 +41,7 @@ divWitness = (v,w) -> (
 	  while true do (
 	       i := k;
 	       for j from (sigma#k)+1 to wmax do (
-		    if all(#(R#semigroup), b->(diag(vl,b,i) <= diag(wl,b,j))) then (
+		    if all(#(R.semigroup), b->(diag(vl,b,i) <= diag(wl,b,j))) then (
 			 sigma#i = j;
 			 i = i+1;
 			 );
@@ -50,10 +50,10 @@ divWitness = (v,w) -> (
 	       if k < 0 then return (false, {});
 	       );
 	  for i from vmax+1 to n-1 do sigma#i = sigma#vmax + i - vmax;
-	  if all(R#varIndices, ind->(
+	  if all(R.varIndices, ind->(
 		    sind := (1:ind#0)|apply(1..#ind-1, j->sigma#(ind#j));
-		    (not R#varPosTable#? sind and vl#(R#varPosTable#ind) == 0)
-		    or vl#(R#varPosTable#ind) <= wl#(R#varPosTable#sind))) 
+		    (not R.varPosTable#? sind and vl#(R.varPosTable#ind) == 0)
+		    or vl#(R.varPosTable#ind) <= wl#(R.varPosTable#sind))) 
 		    then break;
 	  k = vmax;
 	  );
@@ -64,7 +64,7 @@ reduce = method(Options=>{Completely=>false})
 reduce (RingElement, BasicList) := o -> (f,B) -> (
      B = select(toList B,b->b!=0);
      R := ring f;
-     n := R#indexBound;
+     n := R.indexBound;
      divisible := true;
      while divisible and f != 0 do (
 	  divisible = false;
@@ -95,7 +95,7 @@ reduce2 (RingElement,List) := o -> (f,F) -> (
      R := ring f;
      r := reduce(f,F,Completely=>o.Completely);
      while r === null do (
-     	  Rnew := buildERing(R,(R#indexBound)+1);
+     	  Rnew := buildERing(R,(R.indexBound)+1);
      	  RtoRnew := ringMap(Rnew,R);
      	  F = RtoRnew\F;
      	  f = RtoRnew f;
@@ -113,7 +113,7 @@ reduce2 (RingElement,List) := o -> (f,F) -> (
 --Out: a polynomial ring over K with variable indices determined by s.
 --     All "infinite" indices are included up to n-1. 
 buildERing = method()
-buildERing (Ring,ZZ) := (R,n) -> buildERing(R#symbols, R#semigroup, coefficientRing R, n)
+buildERing (Ring,ZZ) := (R,n) -> buildERing(R.symbols, R.semigroup, coefficientRing R, n)
 buildERing (List,List,Ring,ZZ) := (X,s,K,n) -> (
      variableIndices := flatten apply(#s, b->(
 	       toList (((1:b)|(s#b:0))..((1:b)|(s#b:n-1)))
@@ -125,8 +125,8 @@ buildERing (List,List,Ring,ZZ) := (X,s,K,n) -> (
 		    )), MonomialOrder => Lex];
      R#symbols = X;
      R#varIndices = reverse variableIndices;
-     R#varTable = new HashTable from apply(#(R#varIndices), n->(R#varIndices#n => (gens R)#n));
-     R#varPosTable = new HashTable from apply(#(R#varIndices), n->(R#varIndices#n => n));
+     R#varTable = new HashTable from apply(#(R.varIndices), n->(R.varIndices#n => (gens R)#n));
+     R#varPosTable = new HashTable from apply(#(R.varIndices), n->(R.varIndices#n => n));
      R#semigroup = s;
      R#indexBound = n;
      R
@@ -136,11 +136,11 @@ buildERing (List,List,Ring,ZZ) := (X,s,K,n) -> (
 --     k, ZZ (the number of "gaps")  
 -- Out: the updated list of generators
 -- Description: takes all s-pairs using k "gaps" when "interlacing", reduces, and interreduces. 
-processSpairs = method(Options=>{Symmetrize=>true})
+processSpairs = method(Options=>{Symmetrize=>false})
 processSpairs (List,ZZ) := o -> (F,k) -> (
      if o.Symmetrize then F = interreduce'symmetrize F; 
      R := ring F#0;
-     n := R#indexBound;
+     n := R.indexBound;
      S := buildERing(R,n+k);
      F = F / ringMap(S,R);
      sp := shiftPairs(n,k);
@@ -196,15 +196,15 @@ shiftMap = (R,shift) -> (
      mapList := apply(R#varIndices, ind->(
 	       indnew := new MutableList from ind;
 	       for j from 1 to #ind-1 do (
-		    if ind#j >= #shift or shift#(ind#j) < 0 or shift#(ind#j) >= R#indexBound then return 0_R
+		    if ind#j >= #shift or shift#(ind#j) < 0 or shift#(ind#j) >= R.indexBound then return 0_R
 		    else indnew#j = shift#(ind#j);
 		    );
-	       R#varTable#(toSequence indnew)
+	       R.varTable#(toSequence indnew)
 	       ));
      map(R,R,mapList)
      )
 
-ringMap = (S,R) -> map(S,R, apply(R#varIndices, i->(if S#varTable#? i then S#varTable#i else 0_S)))
+ringMap = (S,R) -> map(S,R, apply(R.varIndices, i->(if S.varTable#? i then S.varTable#i else 0_S)))
 
 -- In: F, a list of generators
 -- Out: the symmetrization of F 
@@ -212,19 +212,19 @@ symmetrize = method()
 symmetrize List := F -> flatten (F/symmetrize)
 symmetrize RingElement := f -> (
      R := ring f;
-     n := R#indexBound;
+     n := R.indexBound;
      apply(permutations toList (0..n-1), p->((shiftMap(R,p)) f))
      )
 
 
 -- In: F, a list of generators
 -- Out: ...
-interreduce = method(Options=>{Symmetrize=>true})
+interreduce = method(Options=>{Symmetrize=>false})
 interreduce (List) := o -> F -> (
      --Reduce elements of F with respect to each other.
      print "-- starting \"slow\" interreduction";
      R := ring first F;
-     n := R#indexBound;
+     n := R.indexBound;
      while true do (
 	  F = select(F, f->f!=0);
      	  i := position(0..#F-1, k-> 
@@ -259,12 +259,12 @@ interreduce (List) := o -> F -> (
 --Out: a list, the number of variables represented in F which have an index equal to i for each i from 0 to n-1
 indexSupport = F -> (
      R := ring first F;
-     n := R#indexBound;
+     n := R.indexBound;
      vSupport := sum(apply(F, f->sum(listForm(f)/first))); --list of # occurrances of each variable in newF
      nSupport := new MutableList from (n:0); --list of # occurances of each index value in variable support
-     for i from 0 to #(R#varIndices)-1 do (
+     for i from 0 to #(R.varIndices)-1 do (
 	  if vSupport#i > 0 then (
-	       ind := R#varIndices#i;
+	       ind := R.varIndices#i;
 	       for j from 1 to #ind-1 do nSupport#(ind#j) = nSupport#(ind#j)+1;
 	       );
 	  );
@@ -283,7 +283,7 @@ makeMonic = f -> if f== 0 then 0 else f/leadCoefficient f
 
 -- In:
 -- Out: 
-egb = method(Options=>{Symmetrize=>true})
+egb = method(Options=>{Symmetrize=>false})
 egb (List) := o -> F -> (
      n := (ring first F)#indexBound;
      k := 0;
@@ -295,7 +295,7 @@ egb (List) := o -> F -> (
 	  print (k,sort newF,newstuff);
 	  if newstuff then k = 0 else k = k+1;
 	  F = newF;
-	  n = S#indexBound;
+	  n = S.indexBound;
 	  );
      F
      )
