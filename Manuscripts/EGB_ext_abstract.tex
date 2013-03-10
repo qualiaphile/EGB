@@ -1,6 +1,6 @@
   %  File:  EGB_algorithm.tex
 
-\documentclass{amsart}
+\documentclass[10pt]{amsart}
 \usepackage{amssymb}
 \usepackage{algorithmic}
 \usepackage{graphicx}
@@ -8,7 +8,13 @@
 \usepackage{setspace}
 \usepackage{hyperref}
 \usepackage{verbatim}
- 
+
+    \topmargin 0mm
+    \textwidth 162mm
+    \textheight 215mm
+    \oddsidemargin 0mm
+    \evensidemargin 0mm
+
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{proposition}[theorem]{Proposition}
@@ -43,18 +49,18 @@
 %    particular graphics capabilities for printing this document).
 \newcommand{\blankbox}[2]{%
   \parbox{\columnwidth}{\centering
-%    Set 
+%    Set
 fboxsep to 0 so that the actual size of the box will match the
 %    given measurements more closely.
     \setlength{\fboxsep}{0pt}%
-    
+
 \fbox{\raisebox{0pt}[#2]{\hspace{#1}}}%
   }%
 }
 
 \newcommand{\floor}[1]{\lfloor {#1} \rfloor}
 \newcommand{\ceil}[1]{\lceil {#1} \rceil}
-\newcommand{\binomial}[2]{\left( 
+\newcommand{\binomial}[2]{\left(
 \begin{array}{c} {#1} \\
                         {#2} \end{array} \right)}
 \def\la{\langle}
@@ -77,7 +83,7 @@ fboxsep to 0 so that the actual size of the box will match the
 \begin{document} \title[Algorithms for Equivariant Gr\"obner Bases]
 {Algorithms for Equivariant Gr\"obner Bases}
 
- %   Information for first author 
+ %   Information for first author
 \author{Christopher J. Hillar}
 \address{Redwood Center for Theoretical Neuroscience, University of California, Berkeley}
 \email{chillar@msri.org}
@@ -90,7 +96,7 @@ fboxsep to 0 so that the actual size of the box will match the
 \address{Georgia Institute of Technology, Atlanta, GA}
 \email{leykin@math.gatech.edu}
 
-%\thanks{The work of the first author is supported under a National Science Foundation Graduate Research Fellowship.} 
+%\thanks{The work of the first author is supported under a National Science Foundation Graduate Research Fellowship.}
 
 \subjclass{13E05, 13E15, 20B30, 06A07}%
 
@@ -100,29 +106,29 @@ fboxsep to 0 so that the actual size of the box will match the
 % \keywords{}
 
 % ----------------------------------------------------------------
-\begin{abstract}
- A polynomial ring over a countably infinite number of variables presents some obstacles to computation because it is not Noetherian.  However, often ideals of interest in this setting are endowed with certain symmetry.  If $G$ is an action on the set of variables of the ring, an ideal is $G$-equivariant if it is closed under the action of $G$.  For certain actions, $G$-equivariant ideals are finitely generated up to $G$ action, and moreover there exist equivariant Gr\"obner bases for such ideals. We describe our implementation of an algorithm for computing equivariant Gr\"obner bases in Macaulay2, and include some examples of its application to particular problems.  Additionally we discuss our efforts to improve its run-time, and the obstacles involved.
-\end{abstract}
-
 \maketitle
 
+ A polynomial ring over a countably infinite number of variables presents some obstacles to computation because it is not Noetherian.  However, often ideals of interest in this setting are endowed with certain symmetry.  Given an action of a monoid $G$ on the set of variables, we consider $G$-equivariant ideals finitely generated up to the action of $G$. We describe an algorithm to compute an {\em equivariant Gr\"obner bases} that may exist for such ideals in certain settings and its implementation, {\tt EquivariantGB} package for {\tt Macaulay2}.
+ 
+ Included is an example of computation of the kernel of a particular toric map of infinite-dimensional rings, which reproves the result of de Loera, Sturmfels, and Thomas~\cite{deLoera-Sturmfels-Thomas} obtained theoretically. We also discuss our efforts to improve the run-time and the obstacles involved.
+
 \section{Introduction}
-Let $X = \{x_1,x_2,\ldots\}$ be an countably infinite collection of indeterminates.  Fixing a field $k$, let $R = k[X]$ be the polynomial ring with over $k$ with indeterminates $X$.  Let $G$ be a semigroup [*** CHRIS: why not use \textit{monoid} here and throughout?   semigroups don't necessarily have identity elements ***] with a left action on $X$, so there is a natural left action of $G$ on $R$.  For a polynomial $f \in R$ and semigroup element $\sigma \in G$, the action of $g$ on $f$ is defined as
+Let $X = \{x_1,x_2,\ldots\}$ be an countably infinite collection of indeterminates.  Fixing a field $k$, let $R = k[X]$ be the polynomial ring with over $k$ with indeterminates $X$.  Let $G$ be a monoid with a left action on $X$, so there is a natural left action of $G$ on $R$.  For a polynomial $f \in R$ and a monoid element $\sigma \in G$, the action of $g$ on $f$ is defined as
  \[ \sigma\cdot f(x_1,x_2,\ldots) = f(\sigma(x_1),\sigma(x_2),\ldots). \]
 
-Indexing $X$ by the natural numbers, two semigroups of particular interest are
+Indexing $X$ by the natural numbers, two monoids of particular interest are
 \begin{itemize}
  \item ${\mathfrak S}_{\infty}$, the group of all permutations of $\B N$, and
- \item $\Inc$, the semigroup of all strictly increasing functions $\B N \to \B N$.
+ \item $\Inc$, the monoid of all strictly increasing functions $\B N \to \B N$.
 \end{itemize}
-Other examples of semigroup actions of interest come from indexing the variables in other ways:
+Other examples of monoid actions of interest come from indexing the variables in other ways:
 \begin{itemize}
  \item Index $X$ by $\B N \times [n]$ for some positive integer $n$ and act with either $\F S_\infty$ or $\Inc$ on only the first index.
  \item Index $X$ by $\B N \times \B N$ and act with either $\F S_\infty$ or $\Inc$ diagonally on both indices.
 \end{itemize}
 
 
-The left actions of $G$ and $R$ on $R$ can be combined into an action of the twisted semigroup ring of $G$ over $R$, denoted $R*G$.  The additive structure of $R*G$ is the same as the semigroup ring $R[G]$.  Multiplication is defined term-wise by 
+The left actions of $G$ and $R$ on $R$ can be combined into an action of the twisted monoid ring of $G$ over $R$, denoted $R*G$.  The additive structure of $R*G$ is the same as the monoid ring $R[G]$.  Multiplication is defined term-wise by
  \[ f\sigma\cdot g\tau = f\sigma(g)(\sigma\tau) \]
 for $f,g\in R$ and $\sigma,\tau\in G$, and extended by linearity.  Note that elements of $R$ and $G$ do not commute with each other in $R*G$, mirroring the lack of commutativity of acting on $R$ by permuting the variables and by multiplying by a polynomial.  $R$ has a natural $R*G$-module structure.
 
@@ -134,7 +140,7 @@ for $f,g\in R$ and $\sigma,\tau\in G$, and extended by linearity.  Note that ele
 $G$-equivariant ideals are exactly the $R*G$-submodules of $R$.
 
 \begin{definition}
-$R$ is $G${\em -Noetherian} if it satisfies the ascending chain condition for $G$-equivariant ideals. 
+$R$ is $G${\em -Noetherian} if it satisfies the ascending chain condition for $G$-equivariant ideals.
 \end{definition}
 In particular $G$-Noetherianity implies every $G$-equivariant ideal is finitely generated as an $R*G$-module, which is of particular interest to us.  The notation $\ideal{f_1,\ldots,f_s}_{R*G}$ will be used to denote the equivariant ideal generated by polynomials $f_1,\ldots,f_s$ as an $R*G$-module.
 
@@ -166,19 +172,19 @@ So any $\F S_\infty$-equivariant ideal generated by $F$ can be represented as a 
 \begin{definition}
  A $G$-equivariant Gr\"obner basis for equivariant ideal $I$ with monomial order $>$ that respects $G$ is a set $B \subset I$ such that for any $f \in I$, there is $g \in B$ such that
   \[ \LT f = m\cdot \LT g \]
- for some monomial $m \in R*G$. 
+ for some monomial $m \in R*G$.
 \end{definition}
 
 The normal form of a polynomial $f$ with respect to a set of polynomials $B$, denoted $\NF_B(f)$, is defined in the usual way.  We reduce by an element $g \in B$ if there is some $\sigma \in G$ such that $\sigma \cdot \LT g$ divides $\LT f$.
 
-An implementation issue with this equivariant normal form algorithm is efficiently finding $\sigma \in G$ such that $\sigma \LT g$ divides $\LT f$.  This can be difficult depending on the semigroup action.  In the case of $G = \Inc$ acting on a single index, there is a linear time greedy algorithm, by mapping each variable in $\LT g$ in turn to the first possible variable in $\LT f$ with a large enough exponent.  For $G = \Inc$ acting diagonally on variables indexed by $\B N \times \B N$, we are not aware of a polynomial time algorithm.  Computing $\sigma$ as efficiently as possible is an opportunity for improvement.
+An implementation issue with this equivariant normal form algorithm is efficiently finding $\sigma \in G$ such that $\sigma \LT g$ divides $\LT f$.  This can be difficult depending on the monoid action.  In the case of $G = \Inc$ acting on a single index, there is a linear time greedy algorithm, by mapping each variable in $\LT g$ in turn to the first possible variable in $\LT f$ with a large enough exponent.  For $G = \Inc$ acting diagonally on variables indexed by $\B N \times \B N$, we are not aware of a polynomial time algorithm.  Computing $\sigma$ as efficiently as possible is an opportunity for improvement.
 
 \begin{theorem}
 Let $B$ be a $G$-equivariant Gr\"obner basis for equivariant ideal $I$.  Then $f \in I$ if and only if $f$ has normal form $0$ with respect to $B$.
 \end{theorem}
 
 \section{Equivariant Buchberger algorithm}
-If $R$ is $G$-Noetherian, then every equivariant ideal has a finite equivariant Gr\"obner basis.  Without $G$-Noetherianity certain finitely generated ideals may still have a finite equivariant Gr\"obner basis, but this is not guaranteed.  In either case, given a set of generators for an equivariant ideal, we can try to use a variant of the Buchberger algorithm to compute a Gr\"obner basis.
+If the ring $R$ is $G$-Noetherian, then every equivariant ideal has a finite equivariant Gr\"obner basis.  Even if $R$ is not $G$-Noetherian some finitely generated ideals may still have a finite equivariant Gr\"obner basis.  In either case, given a set of generators for an equivariant ideal we can run our variant of the Buchberger algorithm. If the computation terminates, then the output is an equivariant Gr\"obner basis.
 
 The main departure from the usual Buchberger algorithm comes when computing S-polynomials from a given pair of polynomials $f,h$.  In the standard Buchberger algorithm, there is only one S-polynomial to consider, $S(f,h)$.  In the equivariant case, there is no longer a single S-polynomial which generates all differences $m_1f - m_2h$ where $\LT m_1f = \LT m_2h$ for $m_1,m_2$ monomials in $R*G$.  Instead we need to generate all S-polynomials in the set
  \[ S(Gf,Gh) := \{ S(\sigma f, \tau h): \sigma,\tau \in G\}. \]
@@ -203,17 +209,21 @@ We can make some improvements on the number of S-polynomials considered for each
  \[ \sum_{r=0}^{n-1} \binom{n+r}{r}\binom{n}{r}. \]
 Note that gap size $n$ can be ruled out.  In this case the variable support of $\sigma f$ and $\tau h$ will be disjoint, and so $S(\sigma f, \tau h)$ will always reduce to zero.
 
-To further reduce the number of S-polynomials considered, we make use of the fact that in practice, most elements of the Gr\"obner basis can be found from examining only the S-polynomials coming from interlacings with gap size 0 or 1.  As a result, at each iteration of the search for new Gr\"obner basis elements, we only consider interlacings with gap size $r$ if no new elements were found with gap size less than $r$.  We must still consider all interlacings on the last pass to verify that the Buchberger criterion is satisfied, but often large gaps are avoided in the previous iterations.
+To further reduce the number of S-polynomials considered, we use the fact that, in practice, most elements of the Gr\"obner basis can be found from examining only the S-polynomials coming from interlacings with gap size 0 or 1.  As a result, at each iteration, we only consider interlacings with gap size $r$ if no new elements were found with gap size less than $r$.  We must still consider all interlacings on the last pass to verify that the Buchberger criterion is satisfied.
 
 \section{Macaulay2 Package}
-We have implemented Buchberger's algorithm for equivariant Gr\"obner bases in a Macaulay2 package titled ``EquivariantGB''.  The main function in the package is {\ttfamily egb} which takes a list of generators $F$ for an equivariant ideal and returns an equivariant Gr\"obner basis for the ideal.
+We have implemented Buchberger's algorithm for equivariant Gr\"obner bases in a {\tt Macaulay2}~\cite{M2www} package {\tt EquivariantGB}~\cite{EquivariantGB}. The main function in the package is {\ttfamily egb} which takes a list of generators $F$ for an equivariant ideal and returns an equivariant Gr\"obner basis for the ideal.
 
-The generators passed to {\ttfamily egb} must belong to a ring $R$ generated by the function {\ttfamily buildERing}.  Such a ring has stored certain information about the how the semigroup $G = \Inc$ acts on the variables.  $R$ with the set of variables indexed by $\B N^k$ is supported for any finite $k$, where $G$ acts diagonally on the indices.   $R$ can also have multiple blocks of variables of this form.  The algorithm uses lexicographic order, with the variables sorted by block, however we plan to allow the user to specify other orders in the future.
+The generators passed to {\ttfamily egb} must belong to a ring $R$ generated by the function {\ttfamily buildERing}.  Such a ring has stored certain information about the how the monoid $G = \Inc$ acts on the variables.  $R$ with the set of variables indexed by $\B N^k$ is supported for any finite $k$, where $G$ acts diagonally on the indices.   $R$ can also have multiple blocks of variables of this form.  The algorithm uses lexicographic order, with the variables sorted by block, however we plan to allow the user to specify other orders in the future.
 
 The optional argument {\ttfamily Symmetrize} determines whether {\ttfamily egb} computes a Gr\"obner basis for $\ideal{F}_{\Inc}$ or for $\ideal{F}_{\F S_\infty}$.
 
 \begin{example}
-Here we use our implementation to reproduce a result computed by Jan Draisma, and we achieve a matching output.  Let $Y = \{y_{a,b}:\; a > b;\; a,b \in \B N\}$ and $X = \{x_c:\; c \in \B N\}$.  We wish to compute the kernel of toric map $\varphi:k[Y] \to k[X]$ defined by $y_{i,j} \mapsto x_ix_j$.  We build the ring $R = k[Y,X]$ and note that the graph of $\varphi$ has ideal $I = \ideal{y_{1,0} - x_1x_0}_{\Inc}$.  We find an equivariant Gr\"obner basis for $I$ with an elimination order for $X$.
+Consider indeterminates $y_{ij}$ $(i > j)$ and $x_j$ with $i,j \in \mathbb N$.  The kernel $I$ of the (toric) map $y_{ij} \mapsto x_i x_j$ 
+
+Let $Y = \{y_{i,j}:\; i > j;\; i,j \in \B N\}$ and $X = \{x_k:\; k \in \B N\}$.  Let $K$ be the kernel of the toric map $\varphi:k[Y] \to k[X]$ defined by $y_{i,j} \mapsto x_ix_j$. While $K$ is not finitely generated in the usual sense, de Loera, Sturmfels, and Thomas~\cite{deLoera-Sturmfels-Thomas} have shown that it is finitely generated up to symmetry.
+
+We build the ring $R = k[Y,X]$ and note that the graph of $\varphi$ has ideal $I = \ideal{y_{1,0} - x_1x_0}_{\Inc}$.  We find an equivariant Gr\"obner basis for $I$ with an elimination order for $X$.
  \begin{Macaulay2}
 \begin{verbatim}
 i1 : loadPackage "EquivariantGB";
@@ -226,62 +236,72 @@ i4 : egb(F, Symmetrize => false)
 
                                                       2
 o4 = {x x  - y   , x y    - x y   , x y    - x y   , x y    - y   y   ,
-       1 0    1,0   2 1,0    0 2,1   1 2,0    0 2,1   0 2,1    2,0 1,0 
-       
-       
+       1 0    1,0   2 1,0    0 2,1   1 2,0    0 2,1   0 2,1    2,0 1,0
+
+
       y   y    - y   y   , y   y    - y   y   }
        3,1 2,0    3,0 2,1   3,2 1,0    3,0 2,1
-       
+
 \end{verbatim}
 \end{Macaulay2}
-Because the algorithm completed, we can conclude that the kernel of $\varphi$ is finitely generated as a $\Inc$-equivariant ideal, with generators 
+This output matches the results communicated to us by Jan Draisma.
+Because the algorithm completed, we can conclude that the kernel of $\varphi$ is finitely generated as a $\Inc$-equivariant ideal, with generators
 \[ y_{3,1}y_{2,0} - y_{3,0}y_{2,1}, y_{3,2}y_{1,0} - y_{3,0}y_{2,1}. \]
+This reproves the result of \cite{deLoera-Sturmfels-Thomas} without using any other argument other than the computation above.
 \end{example}
 
-% ----------------------------------------------------------------
-\begin{comment}
-\begin{thebibliography}{99}
+\section{Conclusion}
+Since its revival by Aschenbrenner and Hillar~\cite{Aschenbrenner-Hillar:finite-generation}, the topic of equivariant ideals enjoyed a lot of attention due to potential applications. This was amplified by an  implementation of an equivariant Buchberger algorithm by Brouwer and Draisma~\cite{Brouwer-Draisma} custom-made to solve computationally an open problem in algebraic statistics.
 
-\bibitem{AH}
-M. Aschenbrenner and C. Hillar, \emph{Finite generation of symmetric ideals}, 
-Trans. Amer. Math. Soc., to appear.
+Proof-of-concept implementations of an equivariant Buchberger algorithm were carried out also in {\tt Singular}~\cite{Aschenbrenner-Hillar:ISSAC} and in {\tt Sage}~\cite{SAGE:symmetric-GB}. We have created {\tt EquivariantGB} to attack problems in more general settings with a long-term goal to improve the efficiency and extend the reach of this very-high-complexity algorithm.
 
-%\bibitem{BB1} B. Buchberger, \emph{An algorithm for finding a basis
-%for the residue class ring of a zero-dimensional polynomial
-%ideal}, PhD Thesis, University of Innsbruck,
-%Institute for Mathematics (1965).
+Besides high-level optimizations, such as new criteria for weeding out unnecessary S-pairs, we envision low-level improvements, such as using sparse presentations of exponents of monomials in the kernel of {\tt Macaulay2}. 
 
-%\bibitem{BB2} B. Buchberger, \emph{An algorithmic criterion for the
-%solvability of algebraic systems of equations},
-%Aequat. Math. \textbf{4} (1970), 374--383.
+\bibliographystyle{plain}
+%\bibliography{../../../W/leykin,../../../W/anton_leykin_bib}
 
-%\bibitem{Cox2} D. Cox, J. Little, D. O'Shea, \emph{Using algebraic geometry},
-%Springer, New York, 1998.
+\def\cprime{$'$}
+\begin{thebibliography}{1}
 
-%\bibitem{HW} 
-%C. Hillar and T. Windfeldt, \emph{Minimal generators for symmetric ideals}, preprint.
+\bibitem{Aschenbrenner-Hillar:finite-generation}
+Matthias Aschenbrenner and Christopher~J. Hillar.
+\newblock Finite generation of symmetric ideals.
+\newblock {\em Trans. Amer. Math. Soc.}, 359(11):5171--5192, 2007.
 
-%\bibitem{Ruch1} A. Mead, E. Ruch, A. Sch\"onhofer, \emph{Theory of
-%    chirality functions, generalized for molecules with chiral
-%    ligands}.  Theor. Chim.  Acta \textbf{29} (1973), 269--304.
-%
-%\bibitem{Ruch2} E. Ruch, A. Sch\"onhofer, \emph{Theorie der
-%    Chiralit\"atsfunktionen}, Theor. Chim. Acta \textbf{19} (1970),
-%  225--287.
-%
-%\bibitem{Ruch3} E. Ruch, A. Sch\"onhofer, I. Ugi, \emph{Die
-%    Vandermondesche Determinante als N\"aherungsansatz f\"ur eine
-%    Chiralit\"atsbeobachtung, ihre Verwendung in der Stereochemie und
-%    zur Berechnung der optischen Aktivit\"at}, Theor. Chim.  Acta
-%  \textbf{7} (1967), 420--432.
+\bibitem{Aschenbrenner-Hillar:ISSAC}
+Matthias Aschenbrenner and Christopher~J. Hillar.
+\newblock An algorithm for finding symmetric grobner bases in infinite
+  dimensional rings.
+\newblock In {\em ISSAC}, pages 117--124, 2008.
 
-%\bibitem{JS}
-%J. Schicho, private communication, 2006.
+\bibitem{Brouwer-Draisma}
+Andries~E. Brouwer and Jan Draisma.
+\newblock Equivariant {G}r\"obner bases and the {G}aussian two-factor model.
+\newblock {\em Math. Comp.}, 80(274):1123--1133, 2011.
 
+\bibitem{deLoera-Sturmfels-Thomas}
+Jes{\'u}s~A. de~Loera, Bernd Sturmfels, and Rekha~R. Thomas.
+\newblock Gr\"obner bases and triangulations of the second hypersimplex.
+\newblock {\em Combinatorica}, 15(3):409--424, 1995.
 
+\bibitem{M2www}
+Daniel~R. Grayson and Michael~E. Stillman.
+\newblock Macaulay 2, a software system for research in algebraic geometry.
+\newblock Available at http://www.math.uiuc.edu/Macaulay2/.
+
+\bibitem{SAGE:symmetric-GB}
+Simon King.
+\newblock {SAGE: Symmetric Ideals of Infinite Polynomial Rings}.
+\newblock
+  http://www.sagemath.org/doc/reference/sage/rings/polynomial/symmetric\_ideal%
+.html.
+
+\bibitem{EquivariantGB}
+Robert Krone.
+\newblock {EquivariantGB: equivariant Gr\"obner bases in Macaulay2}.
+\newblock http://???
 
 \end{thebibliography}
-\end{comment}
+
 \end{document}
-% ----------------------------------------------------------------
 
