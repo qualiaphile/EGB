@@ -101,13 +101,13 @@ fboxsep to 0 so that the actual size of the box will match the
 
 % ----------------------------------------------------------------
 \begin{abstract}
- A polynomial ring over a countably infinite number of variables presents some obstacles to computation because it's not Noetherian.  However often the ideals of interest in this setting are endowed with certain symmetry.  If $G$ is an action on the set of variables of the ring, an ideal is $G$-equivariant if it is closed under the action of $G$.  For certain actions, $G$-equivariant ideals are finitely generated up to $G$ action, and moreover there exist equivariant Gr\"obner bases for such ideals. We describe our implementation of an algorithm for computing equivariant Gr\"obner bases in Macaulay2, and include some examples of its application to particular problems.  Additionally we discuss our efforts to improve its run-time, and the obstacles involved.
+ A polynomial ring over a countably infinite number of variables presents some obstacles to computation because it is not Noetherian.  However, often ideals of interest in this setting are endowed with certain symmetry.  If $G$ is an action on the set of variables of the ring, an ideal is $G$-equivariant if it is closed under the action of $G$.  For certain actions, $G$-equivariant ideals are finitely generated up to $G$ action, and moreover there exist equivariant Gr\"obner bases for such ideals. We describe our implementation of an algorithm for computing equivariant Gr\"obner bases in Macaulay2, and include some examples of its application to particular problems.  Additionally we discuss our efforts to improve its run-time, and the obstacles involved.
 \end{abstract}
 
 \maketitle
 
 \section{Introduction}
-Let $X = \{x_1,x_2,\ldots\}$ be an countably infinite collection of indeterminates.  Fixing a field $k$, let $R = k[X]$ be the polynomial ring with over $k$ with indeterminates $X$.  Let $G$ be a semigroup with a left action on $X$, so there is a natural left action of $G$ on $R$.  For a polynomial $f \in R$ and semigroup element $\sigma \in G$, the action of $g$ on $f$ is defined as
+Let $X = \{x_1,x_2,\ldots\}$ be an countably infinite collection of indeterminates.  Fixing a field $k$, let $R = k[X]$ be the polynomial ring with over $k$ with indeterminates $X$.  Let $G$ be a semigroup [*** CHRIS: why not use \textit{monoid} here and throughout?   semigroups don't necessarily have identity elements ***] with a left action on $X$, so there is a natural left action of $G$ on $R$.  For a polynomial $f \in R$ and semigroup element $\sigma \in G$, the action of $g$ on $f$ is defined as
  \[ \sigma\cdot f(x_1,x_2,\ldots) = f(\sigma(x_1),\sigma(x_2),\ldots). \]
 
 Indexing $X$ by the natural numbers, two semigroups of particular interest are
@@ -153,7 +153,7 @@ In order to define Gr\"obner bases, we give $R$ a monomial order $>$, and impose
 \[ x^\alpha > x^\beta \quad \Leftrightarrow \quad \sigma x^\alpha > \sigma x^\beta. \]
 \end{itemize}
 If this condition is met we say $G$ respects the order $>$.
-Note that there is no monomial order which the action of $\F S_\infty$ respects so we won't be able to define $\F S_\infty$-equivariant Gr\"obner bases.  However there are monomial orders which respect $\Inc$, for example lexicographic order with
+Note that there is no monomial order which the action of $\F S_\infty$ respects, so we won't be able to define $\F S_\infty$-equivariant Gr\"obner bases.  However there are monomial orders which respect $\Inc$, for example lexicographic order with
 \[x_1 < x_2 < x_3 < \cdots.\]
 We can use $\Inc$ as a substitute for $\F S_\infty$ using the following fact.
 \begin{theorem}
