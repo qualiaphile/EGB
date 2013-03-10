@@ -13,8 +13,8 @@ newPackage(
      --   but false after it is done
      DebuggingMode => true 
      )
-export { egb, buildERing, Symmetrize }
-protect \ { Completely, symbols, varIndices, varTable, varPosTable, semigroup, indexBound, diagonalSlices }
+export { egb, buildERing, Symmetrize, Completely, reduce }
+protect \ { symbols, varIndices, varTable, varPosTable, semigroup, indexBound, diagonalSlices }
      
      
 spoly = (f,g) -> (
@@ -35,6 +35,8 @@ divWitness = (v,w) -> (
      diag := (vl,b,i) -> vl#(R.varPosTable#((1:b)|(R.semigroup#b:i)));
      vmax := position(indexSupport({leadTerm v}), i->(i > 0), Reverse=>true);
      wmax := position(indexSupport({leadTerm w}), i->(i > 0), Reverse=>true);
+     if vmax === null then return (true, toList(0..n-1));
+     if wmax === null then return (false, {});
      sigma := new MutableList from (n:-1);
      k := 0;
      while true do (
@@ -340,7 +342,7 @@ document {
      Caveat => {"warning"}
      }
 
-undocumented {Symmetrize, buildERing, [egb,Symmetrize]}
+undocumented {Symmetrize, Completely, buildERing, reduce, [egb,Symmetrize]}
 
 TEST ///
 needs concatenate(EquivariantGB#"source directory","./examples.m2")
