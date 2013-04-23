@@ -19,6 +19,7 @@ export {
      buildERing,
      Symmetrize,
      Completely,
+     Diagonal,
      reduce
      }
 
@@ -42,10 +43,10 @@ divWitness = (v,w) -> (
      vl := (listForm leadTerm v)#0#0;
      wl := (listForm leadTerm w)#0#0;
      diag := (vl,b,i) -> vl#(R.varPosTable#((1:b)|(R.semigroup#b:i)));
-     vmax := position(indexSupport({leadTerm v}), i->(i > 0), Reverse=>true);
-     wmax := position(indexSupport({leadTerm w}), i->(i > 0), Reverse=>true);
-     if vmax === null then return (true, toList(0..n-1));
-     if wmax === null then return (false, {});
+     vmax := maxIndex {leadTerm v};
+     wmax := maxIndex {leadTerm w};
+     if vmax == -1 then return (true, toList(0..n-1));
+     if wmax == -1 then return (false, {});
      sigma := new MutableList from (n:-1);
      k := 0;
      while true do (
@@ -129,25 +130,30 @@ reduce (RingElement,List) := o -> (f,F) -> (
 --    n, an integer
 --Out: a polynomial ring over K with variable indices determined by s.
 --     All "infinite" indices are included up to n-1. 
-buildERing = method()
-buildERing (Ring,ZZ) := (R,n) -> buildERing(R.symbols, R.semigroup, coefficientRing R, n)
-buildERing (List,List,Ring,ZZ) := (X,s,K,n) -> (
-     variableIndices := flatten apply(#s, b->(
-	       toList (((1:b)|(s#b:0))..((1:b)|(s#b:n-1)))
-	       ));
+buildERing = method(Options=>{MonomialOrder=>Lex})
+buildERing (Ring,ZZ) := o -> (R,n) -> buildERing(R.symbols, R.semigroup, coefficientRing R, n, MonomialOrder=>R.MonomialOrder)
+buildERing (List,List,Ring,ZZ) := o -> (X,s,K,n) -> (
+     variableIndices := s / (b->(toList ((b:0)..(b:n-1))));
+     if o.MonomialOrder == Diagonal then (
+	  variableIndices = apply(variableIndices, l->(
+		    dPartition := partition(i->any(i, j->(#select(i, k->(k==j)) > 1)), l);
+		    (dPartition#false)|(dPartition#true)));
+	  );
+     variableIndices = flatten apply(#s, b->(apply(variableIndices#b, i->((1:b)|i))));
      R := K[reverse apply(variableIndices, i->(
 		    if #i == 1 then X#(i#0)            --if block has only one variable, use no index
 		    else if #i == 2 then X#(i#0)_(i#1) --if block has only one index, index by integers
 		    else (X#(i#0))_(take(i,1-#i))      --if block has several indices, index by sequences
 		    )), MonomialOrder => Lex];
-     R#symbols = X;
-     R#varIndices = reverse variableIndices;
-     R#varTable = new HashTable from apply(#(R.varIndices), n->(R.varIndices#n => (gens R)#n));
-     R#varPosTable = new HashTable from apply(#(R.varIndices), n->(R.varIndices#n => n));
-     R#semigroup = s;
-     R#indexBound = n;
+     R.symbols = X;
+     R.varIndices = reverse variableIndices;
+     R.varTable = new HashTable from apply(#(R.varIndices), n->(R.varIndices#n => (gens R)#n));
+     R.varPosTable = new HashTable from apply(#(R.varIndices), n->(R.varIndices#n => n));
+     R.semigroup = s;
+     R.indexBound = n;
+     R.MonomialOrder = o.MonomialOrder;
      R
-     )     
+     )
 
 -- In: F, current generators list
 --     k, ZZ (the number of "gaps")  
@@ -155,16 +161,18 @@ buildERing (List,List,Ring,ZZ) := (X,s,K,n) -> (
 -- Description: takes all s-pairs using k "gaps" when "interlacing", reduces, and interreduces. 
 processSpairs = method(Options=>{Symmetrize=>false})
 processSpairs (List,ZZ) := o -> (F,k) -> (
-     if o.Symmetrize then F = interreduce'symmetrize F; 
+     --if o.Symmetrize then F = interreduce'symmetrize F; 
      R := ring F#0;
      n := R.indexBound;
      S := buildERing(R,n+k);
      F = F / ringMap(S,R);
-     sp := shiftPairs(n,k);
+     maxIndices := apply(F, f->(maxIndex {f}));
+     --sp := shiftPairs(n,n,k);
      --print apply(sp,t->matrix first t||matrix last t);
      Fnew := {};
      for i from 0 to #F-1 do (
 	  for j from 0 to i do (
+	       sp := shiftPairs(maxIndices#i + 1, maxIndices#j + 1, k);
 	       for st in sp do (
 		    (s,t) := st;
 		    f := spoly((shiftMap(S,s)) F#i, (shiftMap(S,t)) F#j);
@@ -172,7 +180,7 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
 		    (r,S,f,F) = reduce2(f,F);
 		    --if f != 0 then print (i,j,s,t);
 		    if r != 0 then (
-			 << "(n)";
+			 --<< "(n)";
 			 --print(F#i,F#j,r); 
 			 Fnew = append(Fnew,r)
 			 );
@@ -180,19 +188,23 @@ processSpairs (List,ZZ) := o -> (F,k) -> (
 	       );
 	  );
      Fnew = apply(Fnew, f->((ringMap(S,ring f)) f));
-     interreduce(F|Fnew, Symmetrize => o.Symmetrize)
+     F|Fnew
      )
 
--- In: n, ZZ
---     k, ZZ
--- Out: a List of all interlacing pairs of subsets of [n+k] of size n (with k gaps)
-shiftPairs = (n,k) -> (
+-- In: n0, ZZ
+--     n1, ZZ
+--     k,  ZZ
+-- Out: a List of all interlacing pairs of subsets of [max{n0,n1}+k] of size n0 and n1 (with k gaps)
+shiftPairs = (n0,n1,k) -> (
      --assert(k==1); -- assume k=1
-     flatten apply(subsets(n+k,n), sImage->(
-	       apply(subsets(sImage,n-k), stImage->(
+     (big,small) := if n0 >= n1 then (0,1) else (1,0);
+     n := (n0,n1);
+     if k >= n#small then return {};
+     flatten apply(subsets(n#big + k, n0), sImage->(
+	       apply(subsets(sImage, n#small - k), stImage->(
 			 sPos := 0;
 			 stPos := 0;
-			 tImage := select(n+k, i->(
+			 tImage := select(n#big + k, i->(
 				   sPos >= #sImage or i != sImage#sPos or (
 					sPos = sPos+1;
 					b := stPos < #stImage and i == stImage#stPos;
@@ -229,8 +241,9 @@ symmetrize = method()
 symmetrize List := F -> flatten (F/symmetrize)
 symmetrize RingElement := f -> (
      R := ring f;
-     n := R.indexBound;
-     apply(permutations toList (0..n-1), p->((shiftMap(R,p)) f))
+     is := indexSupport {f};
+     IS := select(#is, j->(is#j > 0)); -- list of indices present in f
+     apply(permutations IS, p->((shiftMap(R,p)) f))
      )
 
 
@@ -239,7 +252,7 @@ symmetrize RingElement := f -> (
 interreduce = method(Options=>{Symmetrize=>false})
 interreduce (List) := o -> F -> (
      --Reduce elements of F with respect to each other.
-     print "-- starting \"slow\" interreduction";
+     --print "-- starting \"slow\" interreduction";
      R := ring first F;
      n := R.indexBound;
      while true do (
@@ -261,13 +274,13 @@ interreduce (List) := o -> F -> (
 	       makeMonic(leadTerm(F#i) + r)
 	       ));
      --Prune unused variables from R.
-     iS := indexSupport F;
      newn := 0;
      if o.Symmetrize then (
+	  iS := indexSupport F;
 	  shift := toList apply(iS, j->(if j > 0 then (newn = newn+1; newn-1) else -1));
 	  F = F / shiftMap(R,shift);
 	  )
-     else newn = position(iS, i->(i > 0), Reverse=>true) + 1;
+     else newn = maxIndex(F) + 1;
      S := buildERing(R,newn);
      F / ringMap(S,R)
      ) 
@@ -288,12 +301,21 @@ indexSupport = F -> (
      toList nSupport
      )
 
+--In: F, a list of polynomials
+--Out: p, ZZ: the largest index appearing in F.  If all elements of F are 0, return -1.
+maxIndex = F -> (
+     p := position(indexSupport(F), i->(i > 0), Reverse=>true);
+     if p === null then p = -1;
+     p
+     )
+
 -- should run faster if the reduction is done with the fast internal gb routine
 -- ??? is there a function that just interreduces ???
 interreduce'symmetrize = F -> ( 
-     F' := flatten entries gens gb ideal symmetrize F;
-     print F';
-     time interreduce F'
+     F' := symmetrize F;
+     --F' = flatten entries gens gb ideal F';
+     --print F';
+     interreduce F'
      ) 
 
 makeMonic = f -> if f== 0 then 0 else f/leadCoefficient f 
@@ -302,16 +324,33 @@ makeMonic = f -> if f== 0 then 0 else f/leadCoefficient f
 -- Out: 
 egb = method(Options=>{Symmetrize=>false})
 egb (List) := o -> F -> (
+     if o.Symmetrize then F = interreduce'symmetrize F;
      n := (ring first F)#indexBound;
      k := 0;
      while k < n do (
-	  newF := processSpairs(F,k, Symmetrize => o.Symmetrize);
+	  if k == 0 then (
+	       << "-- gens: "; << #F;
+	       << "; indices: "; << (maxIndex F) + 1;
+	       << "; max deg: "; << max((F / degree) / first);
+	       print ".";
+	       );
+	  << "-- "; << k; << " gap Spairs ";
+	  newF := time processSpairs(F,k, Symmetrize => o.Symmetrize);
+	  << "--   interreduce";
+	  newF = time interreduce(newF, Symmetrize => o.Symmetrize);
 	  R := ring first F; 
-	  S := ring first newF; 
+	  S := ring first newF;
 	  newstuff := numgens R != numgens S or sort (F / ringMap(S,R)) != sort newF;
-	  print (k,sort newF,newstuff);
-	  if newstuff then k = 0 else k = k+1;
+	  if newstuff then print sort newF;
 	  F = newF;
+	  if newstuff then (
+	       if o.Symmetrize then (
+		    << "--   symmetrize ";
+		    F = time interreduce'symmetrize F;
+		    );
+	       k = 0;
+	       )
+	  else k = k+1;
 	  n = S.indexBound;
 	  );
      F
