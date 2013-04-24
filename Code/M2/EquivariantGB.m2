@@ -336,14 +336,15 @@ egb (List) := o -> F -> (
 	       );
 	  << "-- "; << k; << " gap Spairs ";
 	  newF := time processSpairs(F,k, Symmetrize => o.Symmetrize);
+	  << "--   "; << (#newF - #F); print " new";
 	  << "--   interreduce";
 	  newF = time interreduce(newF, Symmetrize => o.Symmetrize);
 	  R := ring first F; 
 	  S := ring first newF;
 	  newstuff := numgens R != numgens S or sort (F / ringMap(S,R)) != sort newF;
-	  if newstuff then print sort newF;
 	  F = newF;
 	  if newstuff then (
+	       print sort F;
 	       if o.Symmetrize then (
 		    << "--   symmetrize ";
 		    F = time interreduce'symmetrize F;
