@@ -255,23 +255,46 @@ interreduce (List) := o -> F -> (
      --print "-- starting \"slow\" interreduction";
      R := ring first F;
      n := R.indexBound;
-     while true do (
-	  F = select(F, f->f!=0);
-     	  i := position(0..#F-1, k-> 
-	       any(#F, j-> j != k and first divWitness(F#j,F#k)));
-	  if i =!= null then (
-	       Fout := drop(F,{i,i});
-	       local r; local f;
-	       (r,R,f,Fout) = reduce2(F#i,Fout);
-	       F = insert(i, makeMonic r, Fout);
-	       )
-	  else break;
+     i := 0;
+     while i < #F do (
+	  if F#i == 0 then (i = i+1; continue);
+	  j := 0;
+	  while j < i do (
+	       --print (i,j);
+	       if F#j == 0 then (j = j+1; continue);
+	       k := -1;
+	       if first divWitness(F#j,F#i) then k = i
+	       else if first divWitness(F#i,F#j) then k = j;
+	       if k != -1 then (
+		    Fout := drop(F,{k,k});
+	       	    local r; local f;
+	       	    (r,R,f,Fout) = reduce2(F#k,Fout);
+	       	    F = append(Fout, makeMonic r);
+		    i = i-1;
+		    );
+	       if k == i+1 then break;
+	       if k == -1 then j = j+1;
+	       );
+	  i = i+1;
 	  );
-     F = apply(#F, i->(
-	       g := F#i - leadTerm(F#i);
+     F = select(F, f->f!=0);
+--     while true do (
+--	  F = select(F, f->f!=0);
+--     	  i := position(0..#F-1, k-> 
+--	       any(#F, j-> j != k and first divWitness(F#j,F#k)));
+--	  if i =!= null then (
+--	       Fout := drop(F,{i,i});
+--	       local r; local f;
+--	       (r,R,f,Fout) = reduce2(F#i,Fout);
+--	       F = insert(i, makeMonic r, Fout);
+--	       )
+--	  else break;
+--	  );
+     F = apply(F, f->(
+	       g := f - leadTerm(f);
 	       local r;
 	       (r,R,g,F) = reduce2(g,F,Completely=>true);
-	       makeMonic(leadTerm(F#i) + r)
+	       makeMonic(leadTerm(f) + r)
 	       ));
      --Prune unused variables from R.
      newn := 0;
