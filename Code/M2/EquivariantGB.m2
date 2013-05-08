@@ -20,7 +20,8 @@ export {
      Symmetrize,
      Completely,
      Diagonal,
-     reduce
+     reduce,
+     OutFile
      }
 
 protect \ { symbols, varIndices, varTable, varPosTable, semigroup, indexBound, diagonalSlices }
@@ -278,7 +279,7 @@ interreduce (List) := o -> F -> (
 	  i = i+1;
 	  );
      F = select(F, f->f!=0);
---     while true do (
+--   while true do (
 --	  F = select(F, f->f!=0);
 --     	  i := position(0..#F-1, k-> 
 --	       any(#F, j-> j != k and first divWitness(F#j,F#k)));
@@ -343,34 +344,41 @@ interreduce'symmetrize = F -> (
 
 makeMonic = f -> if f== 0 then 0 else f/leadCoefficient f 
 
+printT = (T,f) -> (
+     f << "     -- used " << T#0 << " seconds" << endl;
+     T#1
+     )
+
 -- In:
 -- Out: 
-egb = method(Options=>{Symmetrize=>false})
+egb = method(Options=>{Symmetrize=>false, OutFile=>stdio})
 egb (List) := o -> F -> (
+     g := o.OutFile;
      if o.Symmetrize then F = interreduce'symmetrize F;
      n := (ring first F)#indexBound;
      k := 0;
      while k < n do (
 	  if k == 0 then (
-	       << "-- gens: "; << #F;
-	       << "; indices: "; << (maxIndex F) + 1;
-	       << "; max deg: "; << max((F / degree) / first);
-	       print ".";
+	       g << "-- gens: " << #F
+	       << "; indices: " << (maxIndex F) + 1
+	       << "; max deg: " << max((F / degree) / first)
+	       << "." << endl;
 	       );
-	  << "-- "; << k; << " gap Spairs ";
-	  newF := time processSpairs(F,k, Symmetrize => o.Symmetrize);
-	  << "--   "; << (#newF - #F); print " new";
-	  << "--   interreduce";
-	  newF = time interreduce(newF, Symmetrize => o.Symmetrize);
+	  g << "-- " << k << " gap Spairs " << flush;
+	  newF := printT(timing processSpairs(F,k, Symmetrize => o.Symmetrize), g);
+	  g << "--   " << (#newF - #F) << " new" << endl;
+	  g << "--   interreduce";
+	  newF = printT(timing interreduce(newF, Symmetrize => o.Symmetrize), g);
 	  R := ring first F; 
 	  S := ring first newF;
 	  newstuff := numgens R != numgens S or sort (F / ringMap(S,R)) != sort newF;
 	  F = newF;
 	  if newstuff then (
-	       print sort F;
+	       g << (sort F) << endl;
+	       g << (toExternalString sort F) << endl;
 	       if o.Symmetrize then (
-		    << "--   symmetrize ";
-		    F = time interreduce'symmetrize F;
+		    g << "--   symmetrize " << flush;
+		    F = printT(timing interreduce'symmetrize F, g);
 		    );
 	       k = 0;
 	       )
