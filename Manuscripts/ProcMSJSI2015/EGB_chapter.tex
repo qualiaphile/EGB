@@ -1,0 +1,323 @@
+  %  File:  EGB_algorithm.tex
+
+\documentclass[10pt]{amsart}
+\usepackage{amssymb}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{etoolbox}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{verbatim}
+
+    \topmargin 0mm
+    \textwidth 162mm
+    \textheight 215mm
+    \oddsidemargin 0mm
+    \evensidemargin 0mm
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{question}[theorem]{Question}\newtheorem{conjecture}[theorem]{Conjecture}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{xca}[theorem]{Exercise}
+\newtheorem{algorithm}[theorem]{Algorithm}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{criterion}[theorem]{Criterion}
+
+\numberwithin{equation}{section}
+
+\newenvironment{Macaulay2}{ \begin{spacing}{0.4} %\begin{quote}
+\smallskip } { \smallskip %\end{quote}
+\end{spacing} }
+
+\newcommand{\B}[1]{\mathbb #1}
+\newcommand{\C}[1]{\mathcal #1}
+\newcommand{\F}[1]{\mathfrak #1}
+
+%    Absolute value notation
+\newcommand{\abs}[1]{\lvert#1\rvert}
+
+%    Blank box placeholder for figures (to avoid requiring any
+%    particular graphics capabilities for printing this document).
+\newcommand{\blankbox}[2]{%
+  \parbox{\columnwidth}{\centering
+%    Set fboxsep to 0 so that the actual size of the box will match the
+%    given measurements more closely.
+    \setlength{\fboxsep}{0pt}%
+
+\fbox{\raisebox{0pt}[#2]{\hspace{#1}}}%
+  }%
+}
+
+\newcommand{\floor}[1]{\lfloor {#1} \rfloor}
+\newcommand{\ceil}[1]{\lceil {#1} \rceil}
+\newcommand{\binomial}[2]{\left(
+\begin{array}{c} {#1} \\
+                        {#2} \end{array} \right)}
+\def\la{\langle}
+\def\ra{\rangle}
+
+\newcommand{\lm}{\operatorname{lm}}
+\newcommand{\lc}{\operatorname{lc}}
+\newcommand{\lt}{\operatorname{lt}}
+
+
+\newcommand{\rank}{\textit{\rm rank}}
+\newcommand{\<}{\langle}
+\renewcommand{\>}{\rangle}
+\newcommand{\ideal}[1]{\langle #1 \rangle}
+\newcommand{\LT}{\operatorname{in}_>}
+\newcommand{\Inc}{\operatorname{Inc}(\B N)}
+\newcommand{\NF}{\operatorname{NF}}
+
+
+\begin{document} \title[Algorithms for Equivariant Gr\"obner Bases]
+{Algorithms for Equivariant Gr\"obner Bases}
+
+ %   Information for first author
+\author{Christopher J. Hillar}
+\address{Redwood Center for Theoretical Neuroscience, University of California, Berkeley}
+\email{chillar@msri.org}
+
+\author{Robert Krone}
+\address{Georgia Institute of Technology, Atlanta, GA}
+\email{krone@math.gatech.edu}
+
+\author{Anton Leykin}
+\address{Georgia Institute of Technology, Atlanta, GA}
+\email{leykin@math.gatech.edu}
+
+%\thanks{The work of the first author is supported under a National Science Foundation Graduate Research Fellowship.}
+
+\subjclass{13E05, 13E15, 20B30, 06A07}%
+
+% \keywords{Invariant ideal, well-quasi-ordering, symmetric group, Gr\"obner basis, generating sets}
+
+
+% \keywords{}
+
+% ----------------------------------------------------------------
+\maketitle
+
+ A polynomial ring over a countably infinite number of variables presents some obstacles to computation because it is not Noetherian.  However, often ideals of interest in this setting are endowed with certain symmetry.  Given an action of a monoid $G$ on the set of variables, we consider $G$-equivariant ideals finitely generated up to the action of $G$. We describe an algorithm to compute {\em equivariant Gr\"obner bases} that may exist for such ideals in certain settings and its implementation, {\tt EquivariantGB} package~\cite{EquivariantGB} for {\tt Macaulay2}~\cite{M2www}.
+ 
+Included are two examples of computation of the kernels of toric maps of infinite-dimensional rings. One reproves the result of de Loera, Sturmfels, and Thomas~\cite{deLoera-Sturmfels-Thomas} obtained theoretically. The other establishes that the kernel is finitely generated up to symmetry in the smallest open case of \cite[Conjecture 5.10]{Aschenbrenner-Hillar:finite-generation}. 
+
+\section{Introduction}
+Let $X = \{x_1,x_2,\ldots\}$ be a countably infinite collection of indeterminates.  Fixing a field $k$, let $R = k[X]$ be the polynomial ring over $k$ with indeterminates $X$.  Let $G$ be a monoid with a left action on $X$, so there is a natural left action of $G$ on $R$.  For a polynomial $f \in R$ and a monoid element $\sigma \in G$, the action of $g$ on $f$ is defined as
+ \[ \sigma\cdot f(x_1,x_2,\ldots) = f(\sigma(x_1),\sigma(x_2),\ldots). \]
+
+Indexing $X$ by the natural numbers, two monoids of particular interest are
+\begin{itemize}
+ \item ${\mathfrak S}_{\infty}$, the group of all permutations of $\B N$, and
+ \item $\Inc$, the monoid of all strictly increasing functions $\B N \to \B N$.
+\end{itemize}
+Other examples of monoid actions of interest come from indexing the variables in other ways:
+\begin{itemize}
+ \item Index $X$ by $\B N \times [n]$ for some positive integer $n$ and act with either $\F S_\infty$ or $\Inc$ on only the first index.
+ \item Index $X$ by $\B N \times \B N$ and act with either $\F S_\infty$ or $\Inc$ diagonally on both indices.
+\end{itemize}
+
+
+The left actions of $G$ and $R$ on $R$ can be combined into an action of the twisted monoid ring of $G$ over $R$, denoted $R*G$.  The additive structure of $R*G$ is the same as the monoid ring $R[G]$.  Multiplication is defined term-wise by
+ \[ f\sigma\cdot g\tau = f\sigma(g)(\sigma\tau) \]
+for $f,g\in R$ and $\sigma,\tau\in G$, and extended by linearity.  Note that elements of $R$ and $G$ do not commute with each other in $R*G$, mirroring the lack of commutativity of acting on $R$ by permuting the variables and by multiplying by a polynomial.  $R$ has a natural $R*G$-module structure.
+
+\begin{definition}
+ An ideal $I \subseteq R$ is $G$\textit{-equivariant}
+(or simply \textit{equivariant}) if \[ GI := \{\sigma f
+: \sigma \in G, \ f \in I\} \subseteq I.\]
+\end{definition}
+$G$-equivariant ideals are exactly the $R*G$-submodules of $R$.
+
+\begin{definition}
+$R$ is $G${\em -Noetherian} if it satisfies the ascending chain condition for $G$-equivariant ideals.
+\end{definition}
+In particular $G$-Noetherianity implies every $G$-equivariant ideal is finitely generated as an $R*G$-module, which is of particular interest to us.  The notation $\ideal{f_1,\ldots,f_s}_{R*G}$ will be used to denote the equivariant ideal generated by polynomials $f_1,\ldots,f_s$ as an $R*G$-module.
+
+\begin{theorem}\label{onevarfinitegenthm}\cite{Aschenbrenner-Hillar:finite-generation}
+$R$ with variables indexed by $\B N$ is $\F S_\infty$-Noetherian.  Similarly $R$ is $\Inc$-Noetherian.
+\end{theorem}
+
+\begin{example}
+$I = \<x_1,x_2,\ldots\>_R$ is a $\F S_\infty$-equivariant ideal of $R$.  It can be expressed as $I= \<x_1\>_{R*\F S_\infty}$.
+\end{example}
+
+\section{Equivariant Gr\"obner Bases}
+In order to define Gr\"obner bases, we give $R$ a monomial order $>$, and impose the following requirement on the relationship between $G$ and the order:
+\begin{itemize}
+ \item For any monomials $x^\alpha, x^\beta \in R$, and $\sigma \in G$,
+\[ x^\alpha > x^\beta \quad \Leftrightarrow \quad \sigma x^\alpha > \sigma x^\beta. \]
+\end{itemize}
+If this condition is met we say $G$ respects the order $>$.
+Note that there is no monomial order which the action of $\F S_\infty$ respects, so we won't be able to define $\F S_\infty$-equivariant Gr\"obner bases.  However there are monomial orders which respect $\Inc$, for example lexicographic order with
+\[x_1 < x_2 < x_3 < \cdots.\]
+We can use $\Inc$ as a substitute for $\F S_\infty$ using the following fact.
+\begin{theorem}
+For any finite $F \subset R$, there exists $n$ such that $F \subset k[x_1,\ldots,x_n]$.  Then
+ \[ \ideal{F}_{\F S_\infty} = \ideal{\F S_n F}_{\Inc}. \]
+\end{theorem}
+So any $\F S_\infty$-equivariant ideal generated by $F$ can be represented as a $\Inc$-equivariant ideal with a finite generating set easily constructed from $F$.
+
+
+\begin{definition}
+ A $G$-equivariant Gr\"obner basis for equivariant ideal $I$ with monomial order $>$ that respects $G$ is a set $B \subset I$ such that for any $f \in I$, there is $g \in B$ such that
+  \[ \LT f = m\cdot \LT g \]
+ for some monomial $m \in R*G$.
+\end{definition}
+
+The normal form of a polynomial $f$ with respect to a set of polynomials $B$, denoted $\NF_B(f)$, is defined in the usual way.  We reduce by an element $g \in B$ if there is some $\sigma \in G$ such that $\sigma \cdot \LT g$ divides $\LT f$.
+
+An implementation issue with this equivariant normal form algorithm is efficiently finding $\sigma \in G$ such that $\sigma \LT g$ divides $\LT f$.  This can be difficult depending on the monoid action.  In the case of $G = \Inc$ acting on a single index, there is a linear time greedy algorithm, by mapping each variable in $\LT g$ in turn to the first possible variable in $\LT f$ with a large enough exponent.  For $G = \Inc$ acting diagonally on variables indexed by $\B N \times \B N$, we are not aware of a polynomial time algorithm.  Computing $\sigma$ as efficiently as possible is an opportunity for improvement.
+
+\begin{theorem}
+Let $B$ be a $G$-equivariant Gr\"obner basis for equivariant ideal $I$.  Then $f \in I$ if and only if $f$ has normal form $0$ with respect to $B$.
+\end{theorem}
+
+\section{Equivariant Buchberger algorithm}
+If the ring $R$ is $G$-Noetherian, then every equivariant ideal has a finite equivariant Gr\"obner basis.  Even if $R$ is not $G$-Noetherian some finitely generated ideals may still have a finite equivariant Gr\"obner basis.  In either case, given a set of generators for an equivariant ideal we can run our variant of the Buchberger algorithm. If the computation terminates, then the output is an equivariant Gr\"obner basis.
+
+The main departure from the usual Buchberger algorithm comes when computing S-polynomials from a given pair of polynomials $f,h$.  In the standard Buchberger algorithm, there is only one S-polynomial to consider, $S(f,h)$.  In the equivariant case, there is no longer a single S-polynomial which generates all differences $m_1f - m_2h$ where $\LT m_1f = \LT m_2h$ for $m_1,m_2$ monomials in $R*G$.  Instead we need to generate all S-polynomials in the set
+ \[ S(Gf,Gh) := \{ S(\sigma f, \tau h): \sigma,\tau \in G\}. \]
+Typically this set is infinite, so for the algorithm to succeed we need to impose another requirement on the action of $G$:
+\begin{itemize}
+ \item For each $f,h \in R$, the set $Gf \times Gh$ is contained in the union of of a finite number of $G$-orbits $G(\sigma_1 f, \tau_1 h),\ldots,G(\sigma_r f, \tau_r h)$, and we can compute the pairs $(\sigma_1,\tau_1),\ldots,(\sigma_r,\tau_r)$.
+\end{itemize}
+
+\begin{theorem}
+ Fixing $f,h \in R$, there is some $n$ such that $f,h \in k[x_1,\ldots,x_n]$.  Then for any $\sigma', \tau' \in \Inc$, there exist strictly increasing functions $\sigma,\tau: [n] \to [2n]$ and $\rho \in \Inc$ such that
+  \[ \rho (\sigma f, \tau h) = (\sigma' f, \tau' h). \]
+\end{theorem}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.7\textwidth]{incmap.ps}
+\end{figure}
+
+Therefore we can consider only S-polynomials of the form $S(\sigma f,\tau h)$ with $\sigma,\tau: [n] \to [2n]$.  The theorem also holds for $\Inc$ acting on variables indexed by $\B N \times \B N$ or $\B N \times [n]$.  Note that the number of pairs of strictly increasing functions $[n] \to [2n]$ is $\binom{2n}{n}^2$, which is large but finite.
+
+We can make some improvements on the number of S-polynomials considered for each pair $f,h \in B$.  In particular it's not necessary to consider all pairs of increasing maps $[n] \to [2n]$, but just the ways of ``interlacing'' the indices of $f$ and $h$.  These are the pairs $(\sigma,\tau)$ such that $\sigma[n] \cup \tau[n] = [n+r]$ for some $0 \leq r \leq n$.  We call $r$ the number of ``gaps'' in the pair since it is the number of values skipped in the image of each of the two maps.  To count the number of interlacings with $r$ gaps, we can choose any $r$ elements of $[n+r]$ to be $\sigma[n] \setminus \tau[n]$ and any $r$ of the remaining $n$ elements to be $\tau[n] \setminus \sigma[n]$.  So the total number of pairs is
+ \[ \sum_{r=0}^{n-1} \binom{n+r}{r}\binom{n}{r}. \]
+Note that gap size $n$ can be ruled out.  In this case the variable support of $\sigma f$ and $\tau h$ will be disjoint, and so $S(\sigma f, \tau h)$ will always reduce to zero.
+
+To further reduce the number of S-polynomials considered, we use the fact that, in practice, most elements of the Gr\"obner basis can be found from examining only the S-polynomials coming from interlacings with gap size 0 or 1.  As a result, at each iteration, we only consider interlacings with gap size $r$ if no new elements were found with gap size less than $r$.  We must still consider all interlacings on the last pass to verify that the Buchberger criterion is satisfied.
+
+\section{Macaulay2 Package}
+We have implemented Buchberger's algorithm for equivariant Gr\"obner bases in a {\tt Macaulay2}~\cite{M2www} package {\tt EquivariantGB}~\cite{EquivariantGB}. The main function in the package is {\ttfamily egb} which takes a list of generators $F$ for an equivariant ideal and returns an equivariant Gr\"obner basis for the ideal.
+
+The generators passed to {\ttfamily egb} must belong to a ring $R$ generated by the function {\ttfamily buildERing}.  Such a ring has stored certain information about the how the monoid $G = \Inc$ acts on the variables.  $R$ with the set of variables indexed by $\B N^k$ is supported for any finite $k$, where $G$ acts diagonally on the indices.   $R$ can also have multiple blocks of variables of this form.  The algorithm uses lexicographic order, with the variables sorted by block, however we plan to allow the user to specify other orders in the future.
+
+The optional argument {\ttfamily Symmetrize} determines whether {\ttfamily egb} computes a Gr\"obner basis for $\ideal{F}_{\Inc}$ or for $\ideal{F}_{\F S_\infty}$.
+
+\begin{example}\label{example:1}
+Let $Y = \{y_{i,j}:\; i > j;\; i,j \in \B N\}$ and $X = \{x_i:\; i \in \B N\}$.  Let $K$ be the kernel of the toric map $\varphi:k[Y] \to k[X]$ defined by $y_{i,j} \mapsto x_ix_j$. While $K$ is not finitely generated in the usual sense, de Loera, Sturmfels, and Thomas~\cite{deLoera-Sturmfels-Thomas} have shown that it is finitely generated up to symmetry.
+
+We build the ring $R = k[Y,X]$ and note that the graph of $\varphi$ has ideal $I = \ideal{y_{1,0} - x_1x_0}_{\Inc}$.  We find an equivariant Gr\"obner basis for $I$ with a monomial order eliminating $X$.
+\begin{Macaulay2}
+\begin{verbatim}
+i1 : loadPackage "EquivariantGB";
+
+i2 : R = buildERing({symbol y,symbol x},{2,1}, QQ, 2);
+
+i3 : F = {y_(1,0) - x_1*x_0};
+
+i4 : egb(F, Symmetrize => false)
+
+                                                      2
+o4 = {x x  - y   , x y    - x y   , x y    - x y   , x y    - y   y   ,
+       1 0    1,0   2 1,0    0 2,1   1 2,0    0 2,1   0 2,1    2,0 1,0
+
+
+      y   y    - y   y   , y   y    - y   y   }
+       3,1 2,0    3,0 2,1   3,2 1,0    3,0 2,1
+
+\end{verbatim}
+\end{Macaulay2}
+This output matches the results communicated to us by Jan Draisma.
+Because the algorithm completed, we can conclude that the kernel of $\varphi$ is finitely generated as a $\Inc$-equivariant ideal, with generators
+\[ y_{3,1}y_{2,0} - y_{3,0}y_{2,1}, y_{3,2}y_{1,0} - y_{3,0}y_{2,1}. \]
+This reproves the result of \cite{deLoera-Sturmfels-Thomas} without using any other argument other than the computation above.
+\end{example}
+
+\begin{example}\label{example:2}
+In the same way as in Example~\ref{example:1}, we set up a computation of $K = \ker(y_{i,j} \mapsto x_i^2x_j)$ and obtained the following equivariant Gr\"obner basis of $I = \ideal{y_{1,0} - x_1^2x_0}_{\Inc}$:
+\begin{align*}
+\{\  &{y}_{3,1} {y}_{2,0}-{y}_{3,0} {y}_{2,1},\ {y}_{3,2}^{2} {y}_{1,0}-{y}_{3,1} {y}_{3,0} {y}_{2,1},\ {y}_{4,2} {y}_{3,2} {y}_{1,0}-{y}_{4,0} {y}_{3,1} {y}_{2,1},
+\\ 
+& {x}_{0}^{3} {y}_{2,1}^{2}-{y}_{2,0}^{2} {y}_{1,0},\ {x}_{0}^{3} {y}_{3,1} {y}_{2,1}-{y}_{3,0} {y}_{2,0} {y}_{1,0},\ {x}_{1} {y}_{2,0}-{x}_{0} {y}_{2,1},\ {x}_{1} {x}_{0}^{2} {y}_{2,1}-{y}_{2,0} {y}_{1,0},\\
+&      {x}_{1} {x}_{0}^{2} {y}_{3,2}^{2}-{y}_{3,0}^{2} {y}_{2,1},\ {x}_{1} {x}_{0}^{2} {y}_{4,2} {y}_{3,2}-{y}_{4,0} {y}_{3,0} {y}_{2,1},\ {x}_{1}^{2} {x}_{0}-{y}_{1,0},\ {x}_{2} {y}_{3,2} {y}_{1,0}-{x}_{0} {y}_{3,1} {y}_{2,1},\ \\
+& {x}_{2} {x}_{1} {x}_{0} {y}_{3,2}-{y}_{3,0} {y}_{2,1},\ {x}_{2} {x}_{1} {x}_{0} {y}_{4,3}^{2}-{y}_{4,1} {y}_{4,0} {y}_{3,2},\ {x}_{2} {x}_{1} {x}_{0} {y}_{5,3} {y}_{4,3}-{y}_{5,0} {y}_{4,1} {y}_{3,2},\ {x}_{2}^{2} {y}_{1,0}-{x}_{1} {x}_{0} {y}_{2,1}\ \}
+\end{align*}
+The first three elements generate $K$ up to symmetry.
+\end{example}
+
+Initiated by finiteness questions of Andreas Dress arising from chemistry, chains of toric ideals that are invariant under a group action have been studied by several authors.  Surprisingly, even the basic question of whether chains induced by toric maps are finite up to symmetry has been open for a number of years (see~\cite[Conjecture 5.10]{Aschenbrenner-Hillar:finite-generation}). The result of our computation in Example~\ref{example:2} proves the smallest open case of this conjecture, verifying~\cite[Conjecture 37]{Hillar-Martin-del-Campo} with $\alpha = (2,1)$.
+
+\section{Conclusion}
+Since its revival by Aschenbrenner and Hillar~\cite{Aschenbrenner-Hillar:finite-generation}, the topic of equivariant ideals enjoyed a lot of attention due to potential applications. This was amplified by an  implementation of an equivariant Buchberger algorithm by Brouwer and Draisma~\cite{Brouwer-Draisma}, an implementation custom-made to solve computationally an open problem in algebraic statistics.
+
+Proof-of-concept implementations of an equivariant Buchberger algorithm were carried out also in {\tt Singular} and {\tt Sage} (in~\cite{Aschenbrenner-Hillar:ISSAC} and ~\cite{SAGE:symmetric-GB}, respectively). We have created {\tt EquivariantGB} to attack problems in more general settings with a long-term goal to improve the efficiency and extend the reach of this algorithm, whose theoretical and practical complexities are extremely high.
+
+Currently the package is written in the interpreted script language of {\tt Macaulay2}, part of the code can be sped up tremendously by a low-level implementation. We also envision using sparsity of monomial exponents by implementing a new type of a polynomial ring in the kernel of {\tt Macaulay2}.
+
+\bibliographystyle{plain}
+%\bibliography{../../../W/leykin,../../../W/anton_leykin_bib}
+
+\def\cprime{$'$}
+\begin{thebibliography}{1}
+
+\bibitem{Aschenbrenner-Hillar:finite-generation}
+Matthias Aschenbrenner and Christopher~J. Hillar.
+\newblock Finite generation of symmetric ideals.
+\newblock {\em Trans. Amer. Math. Soc.}, 359(11):5171--5192, 2007.
+
+\bibitem{Aschenbrenner-Hillar:ISSAC}
+Matthias Aschenbrenner and Christopher~J. Hillar.
+\newblock An algorithm for finding symmetric grobner bases in infinite
+  dimensional rings.
+\newblock In {\em ISSAC}, pages 117--124, 2008.
+
+\bibitem{Brouwer-Draisma}
+Andries~E. Brouwer and Jan Draisma.
+\newblock Equivariant {G}r\"obner bases and the {G}aussian two-factor model.
+\newblock {\em Math. Comp.}, 80(274):1123--1133, 2011.
+
+\bibitem{deLoera-Sturmfels-Thomas}
+Jes{\'u}s~A. de~Loera, Bernd Sturmfels, and Rekha~R. Thomas.
+\newblock Gr\"obner bases and triangulations of the second hypersimplex.
+\newblock {\em Combinatorica}, 15(3):409--424, 1995.
+
+\bibitem{M2www}
+Daniel~R. Grayson and Michael~E. Stillman.
+\newblock Macaulay 2, a software system for research in algebraic geometry.
+\newblock Available at \url{http://www.math.uiuc.edu/Macaulay2/}.
+
+\bibitem{Hillar-Martin-del-Campo}
+Christopher~J. Hillar and Abraham Mart{\'{\i}}n~del Campo.
+\newblock Finiteness theorems and algorithms for permutation invariant chains
+  of {L}aurent lattice ideals.
+\newblock {\em J. Symbolic Comput.}, 50:314--334, 2013.
+
+\bibitem{SAGE:symmetric-GB}
+Simon King.
+\newblock {Sage manual: Symmetric Ideals of Infinite Polynomial Rings}.
+\newblock
+  \\ \url{http://www.sagemath.org/doc/reference/sage/rings/polynomial/symmetric_ideal.html}.
+
+\bibitem{EquivariantGB}
+Robert Krone.
+\newblock {EquivariantGB: equivariant Gr\"obner bases in Macaulay2}.
+\newblock \\ \url{http://people.math.gatech.edu/~rkrone3/EquivariantGB.html}.
+
+\end{thebibliography}
+
+\end{document}
+
