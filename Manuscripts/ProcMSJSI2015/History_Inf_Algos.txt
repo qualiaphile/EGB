@@ -1,0 +1,17 @@
+so part of our job is to summarize a bit of what was out there on algorithms for effective computation in (polynomial) rings with infinite numbers of variables.  here is what i have so far.
+
+---------------------
+1987 [Cohen and student Paper Attached] an algorithm is claimed in this paper by Cohen and his student Phillip Emmott (why didn't they just jointly write this?) for computing in certain rings with infinite numbers of variables.  this seems to be the first instance of such a thing.  we should dig into it and be able to discuss it somewhat in the chapter.
+
+????? [?????] others?
+
+2008 [me and Mathias: http://arxiv.org/abs/0801.4439] Wrongly claims the i -> i +1 loop terminates with a Sym-GB!  with i --> 2i - 1,  is this still a correct algorithm for the Symb-GB (resp INC-GB) case?  [good place to point out counterexample].  for me, it would be great to correct the record on my blunder of claiming this terminated...
+
+2010 [Brouwer, Draisma]  http://arxiv.org/pdf/0908.1530.pdf
+
+20?? [Draisma ???] Other Hybrid - 4ti2 / criterion systems
+???? [??????] other effective algorithms for Laurent toric/lattice ideals, and also non-Laurent toric/lattice ideals.
+*btw: 
+http://www.msri.org/people/members/chillar/files/HM-InvarChainERRATA.pdf
+Corrigendum to “Finiteness theorems and algorithms for permutation invariant chains of Laurent lattice ideals” [J. Symb. Comput. 50 (March 2013) 314–334]
+thanks so much Robert for pointing out our mistake!!
