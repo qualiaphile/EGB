@@ -2,6 +2,8 @@
 \usepackage{amssymb}
 \usepackage{algorithmic}
 \usepackage{comment}
+\usepackage{color}
+\usepackage{soul}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
@@ -44,6 +46,7 @@
 \DeclareMathOperator{\NF}{NF}
 \DeclareMathOperator{\lcm}{lcm}
 \DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\Syz}{Syz}
 \newcommand{\dist}{d}
 \newcommand{\actson}{\curvearrowright}
 \newcommand{\cover}{\widetilde}
@@ -72,6 +75,8 @@
 \newcommand{\LM}{\operatorname{LM}}
 \newcommand{\mm}{\C M}
 \newcommand{\degtot}{\operatorname{deg}_{tot}}
+\newcommand{\NN}{\BF N}
+
 
 \newcommand{\GB}{{Gr\"obner basis}}
 \newcommand{\GBs}{{Gr\"obner bases}}
@@ -386,8 +391,120 @@ One of the most concise theoretical setups of a signature-based algorithm is giv
 \subsection{Strong \GB}
 (describe Gao's approach here)
 
+Let $I=\ideal{F} \subset R=K[x_1,\ldots,x_n]$, where $|F|=r\in\NN$.
+
+A subset $G$ of 
+\[
+P = \{(s,f)\in R^r\times R \mid f=s\cdot F = \sum_{i=1}^r s_iF_i\}.
+\]
+is called a {\em strong Gr\"obner basis} if every non-zero pair is {\em top-reducible} by some pair in $G$.
+
+The pair $(s_f,f)$ is {\em top-reducible} by $(s_g,g)$ if $\LM g |\LM f$ and 
+for some $a$, $\LM f = a \LM g$, we have $a\LM s_g\leq \LM s_f$.  If the reduction,
+\[
+(f',s_{f'}) := (f-ag,s_f-as_g),
+\]
+has $\LM s_{f'} = \LM s_f$, then it is {\em regular top-reducible}.
+
+If $G$ is a strong GB, then by Proposition 2.2 of~\cite{Gao-Volny-Wang:signature-GBs}
+\begin{enumerate}
+   \item $\{f:(s,f)\in G\}$ is a \GB\ of $I$ and 
+   \item $\{s:(s,0)\in G\}$ is a \GB\ of the module of syzygies $\Syz(F) \subset R^r$.
+\end{enumerate}
+   
+Take two pairs $p_f=(s_f,f)$ and $p_g=(s_g,g)$. For monomials $a$ and $b$ such that $a\LM f = b\LM g \in \lcm(\LM f,\LM g)$, form a {\em J-pair} by taking the ``larger side'' of the corresponding S-polynomial: e.g., if $a\LM s_f \geq b\LM s_g$ then the J-pair is $(as_f,af)$.
+
+We denote the set of all J-pairs of $p_f$ and $p_g$ as $J_{p_f,p_g}$. Note that $\lcm(\LM f,\LM g)$, the {\em set} of lowest common multiples, has one element in our current setting and so does $J_{p_f,p_g}$.  
+
+\begin{example} If 
+\begin{align*}
+p_f &= (e_1+\ldots,\,x_1^2x_2+\ldots)\\
+p_g &= (x_2e_1+\ldots,\,x_1x_2^2+\ldots)
+\end{align*}
+then, since $x_2\LM s_f < x_1\LM s_g$,
+\[
+J_{p_g,p_f} = \{x_1p_g\} = \{(x_1x_2e_1+\ldots, x_1^2x_2^2+\ldots)\}.
+\]
+\end{example}
+
+A pair $(s_f,f)$ is {\em covered} by $(s_g,g)$ if $\LM g | \LM f$ and for some $a$ such that $\LM f = a \LM g$ we have $a\LM s_g < \LM s_f$. 
+
+\begin{algorithm}[StrongBuchberger] \label{alg:StrongBuchberger}
+\begin{algorithmic}[1]
+\REQUIRE $F \subset R$.
+\ENSURE $G \cup S$ is a strong \GB\ for $F$.
+\smallskip \hrule \smallskip
+
+\STATE $G\gets \emptyset$, $S\gets \emptyset$ 
+\STATE $J\gets \{(e_i,F_i):i\in r=|F|\} \subset R^r\times R$ 
+\WHILE{$J\neq\emptyset$}
+	\STATE pick $p_f = (s_f,f) \in J$; $J\gets J\setminus\{p_f\}$
+	\STATE $p_h=(s_h,h) \gets$ {\em regular top-reduction} of $(s_f,f)$ with respect to $G$
+  	\IF{$h \neq 0$}
+		\STATE $G\gets G\cup \{p_h\}$
+		\STATE append to $J$ all $J$-pairs $\bigcup_{(p_g)\in G}J_{p_g,p_h}$ not {\em covered} by $G \cup S$ 
+        \ELSE 
+                \STATE $S\gets S\cup\{(s_h,0)\}$
+	\ENDIF
+\ENDWHILE
+\smallskip \hrule \smallskip
+\end{algorithmic}
+\end{algorithm}
+
+A proof of termination relies on {\em Noetherianity} of the free module $R^r$. 
+
 \subsection{Translation to an equivariant setting}
-Main point: the direct translation is impossible!
+(Main point: the direct translation is impossible!)
+
+
+Let us go back to an infinite-dimensional polynomial ring $R=K[X]$ with some $\Pi$-action. As a running example take $R=K[x_i,\, i\in\NN]$ with a $\Pi$-compatible order, $\Pi=\Inc$.
+
+To draw parallels with the approach of the previous section we need to work with pairs 
+\[
+P = \{(s,f)\in (R*\Pi)^r\times R \mid f=s\cdot F\}.
+\]
+Recall that, for instance, in our running example $\Pi=\{\rho_i:i\in\NN\} \subset \Inc$, so \[R*\Pi = K[X]*\Pi = K([X]*\Pi).\] 
+The semidirect product $[X]*\Pi$ is a {\em non-Noetherian noncommutative} monoid.
+
+If follows that the module $(R*\Pi)^r$ is not $\Pi$-Noetherian. A strong equivariant \GB, that can be defined similarly to the strong \GB\ in the previous section, is infinite.
+
+(EXAMPLE with $|F|=1$.)
+
+We found a way to modify Algorithm~\ref{alg:StrongBuchberger} to compute an equivariant \GB.  The algorithm below, of course, falls short of computing a strong equivariant \GB, but the partial information computed about the syzygies and the mechanism of top-reduction of J-pairs eliminate a large number of unnecessary iterations in a na\"ive implementation of an equivariant Buchberger's algorithm~(Algorithm \ref{alg:Buchberger}).
+
+\begin{algorithm}[EquivariantStrongBuchberger]
+\begin{algorithmic}[1]
+\REQUIRE $F$ .
+\ENSURE $G$ such that $\pi_2(G)$ is an equivariant \GB\ of $\ideal{F}_\Pi$.
+\smallskip \hrule \smallskip
+\STATE $r\gets |F|$.
+\STATE $G\gets \emptyset$, $S\gets \emptyset$ 
+\STATE $J\gets \{(e_i,F_i):i\in r=|F|\} \subset R^r\times R$ 
+\WHILE{$J\neq\emptyset$}
+	\STATE pick $p_f = (s_f,f) \in J$; $J\gets J\setminus\{p_f\}$
+	\STATE $p_h=(s_h,h) \gets$ {\em regular top-reduction} of $(s_f,f)$ with respect to $G$
+  	\IF{$h \neq 0$}
+		\STATE \hl{$h' \gets\NF_{\Pi\pi_2(G)} h$}
+	        \IF{$h' \neq 0$}
+			\IF{\hl{$h' \neq h$}}
+				\STATE \hl{$r\gets r+1$}
+				\STATE \hl{$p_h \gets (e_r,h')$}
+			\ENDIF
+			\STATE $G\gets G\cup \{p_h\}$
+			\STATE append to $J$ all $J$-pairs $\bigcup_{(p_g)\in G}J_{p_g,p_h}$ not {\em covered} by $G \cup S$ 
+		\ENDIF
+        \ELSE 
+                \STATE $S\gets S\cup\{(s_h,0)\}$
+	\ENDIF
+\ENDWHILE
+\smallskip \hrule \smallskip
+\end{algorithmic}
+\end{algorithm}
+
+The highlighted part of the algorithm insures that it terminates for an input for which Algorithm \ref{alg:Buchberger} terminates.
+Note that the rank $r$ (recall: $G$ and $S$ are contained in $(R*\Pi)^r\times R$) may grow as the algorithm progresses. 
+
+\section{Examples}
 
 \bibliographystyle{plain}
 \bibliography{egb}
