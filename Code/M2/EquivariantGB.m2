@@ -135,19 +135,22 @@ buildERing = method(Options=>{MonomialOrder=>Lex})
 buildERing (Ring,ZZ) := o -> (R,n) -> buildERing(R.symbols, R.semigroup, coefficientRing R, n, MonomialOrder=>R.MonomialOrder)
 buildERing (List,List,Ring,ZZ) := o -> (X,s,K,n) -> (
      variableIndices := s / (b->(toList ((b:0)..(b:n-1))));
-     if o.MonomialOrder == Diagonal then (
+     mo := o.MonomialOrder;
+     if mo == Diagonal then (
 	  variableIndices = apply(variableIndices, l->(
 		    dPartition := partition(i->any(i, j->(#select(i, k->(k==j)) > 1)), l);
 		    (dPartition#false)|(dPartition#true)));
+	  mo = Lex;
 	  );
-     variableIndices = flatten apply(#s, b->(apply(variableIndices#b, i->((1:b)|i))));
-     R := K[reverse apply(variableIndices, i->(
+     variableIndices = flatten apply(#s, b->(reverse apply(variableIndices#b, i->((1:b)|i))));
+     moList := apply(s, b->(mo=>(n^b)));
+     R := K[apply(variableIndices, i->(
 		    if #i == 1 then X#(i#0)            --if block has only one variable, use no index
 		    else if #i == 2 then X#(i#0)_(i#1) --if block has only one index, index by integers
 		    else (X#(i#0))_(take(i,1-#i))      --if block has several indices, index by sequences
-		    )), MonomialOrder => Lex];
+		    )), MonomialOrder => moList];
      R.symbols = X;
-     R.varIndices = reverse variableIndices;
+     R.varIndices = variableIndices;
      R.varTable = new HashTable from apply(#(R.varIndices), n->(R.varIndices#n => (gens R)#n));
      R.varPosTable = new HashTable from apply(#(R.varIndices), n->(R.varIndices#n => n));
      R.semigroup = s;
@@ -345,20 +348,35 @@ interreduce'symmetrize = F -> (
 makeMonic = f -> if f== 0 then 0 else f/leadCoefficient f 
 
 printT = (T,f) -> (
-     f << "     -- used " << T#0 << " seconds" << endl;
+     t := T#0;
+     s := " seconds";
+     if t > 120 then (
+	  t = t/60;
+	  s = " minutes";
+	  if t > 120 then (
+	       t = t/60;
+	       s = " hours";
+	       );
+	  );
+     f << "     -- used " << t << s << endl;
      T#1
      )
 
 -- In:
 -- Out: 
-egb = method(Options=>{Symmetrize=>false, OutFile=>stdio})
+egb = method(Options=>{Symmetrize=>false, OutFile=>null})
 egb (List) := o -> F -> (
      g := o.OutFile;
-     if o.Symmetrize then F = interreduce'symmetrize F;
      n := (ring first F)#indexBound;
      k := 0;
      while k < n do (
 	  if k == 0 then (
+	       if o.Symmetrize then (
+		    g << "--   symmetrize " << flush;
+		    F = printT(timing interreduce'symmetrize F, g);
+		    );
+	       g << (sort F) << endl;
+	       g << (toExternalString sort F) << endl;
 	       g << "-- gens: " << #F
 	       << "; indices: " << (maxIndex F) + 1
 	       << "; max deg: " << max((F / degree) / first)
@@ -373,15 +391,7 @@ egb (List) := o -> F -> (
 	  S := ring first newF;
 	  newstuff := numgens R != numgens S or sort (F / ringMap(S,R)) != sort newF;
 	  F = newF;
-	  if newstuff then (
-	       g << (sort F) << endl;
-	       g << (toExternalString sort F) << endl;
-	       if o.Symmetrize then (
-		    g << "--   symmetrize " << flush;
-		    F = printT(timing interreduce'symmetrize F, g);
-		    );
-	       k = 0;
-	       )
+	  if newstuff then k = 0
 	  else k = k+1;
 	  n = S.indexBound;
 	  );
