@@ -1,0 +1,5 @@
+-- M2 code resides on the branch "egb" of a fork "antonleykin/M2" of Macaulay2 repo on github; to obtain do
+
+git clone git@github.com:antonleykin/M2.git
+git checkout egb
+
