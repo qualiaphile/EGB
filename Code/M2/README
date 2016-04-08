@@ -3,3 +3,10 @@
 git clone git@github.com:antonleykin/M2.git
 git checkout egb
 
+-- Look at 
+M2/M2/Macaulay2/packages/EquivariantGB.m2
+M2/M2/Macaulay2/packages/EquivariantGB/
+M2/M2/Macaulay2/packages/EquivariantGB/EXA/
+
+
+
