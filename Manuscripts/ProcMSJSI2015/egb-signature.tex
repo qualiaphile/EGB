@@ -1,7 +1,7 @@
-Here we decribe our new approach to computing equiavriant \GBs\ utilizing the information stored in {\em signatures}. 
+Here we decribe an approach to computing equivariant \GBs\ utilizing the information stored in {\em signatures}. 
 
-Signature-based algorithms for computing \GBs\ in the most common (finite-dimensional commutative) setting acquired popularity due to Faugere's F5 (see a short description in \S 4 of Chapter 10 of the new edition of Cox, Little, and O'Shea~\cite{Cox-Little-OShea:I-V-A}) and several other recent works (refs?).      
-One of the most concise theoretical setups of a signature-based algorithm is given by Gao {\em et al.} in \cite{Gao-Volny-Wang:signature-GBs}.  
+Signature-based algorithms for computing \GBs\ in the most common (finite-dimensional commutative) setting acquired popularity due to Faugere's F5 (see a short description in \S 4 of Chapter 10 of the new edition of Cox, Little, and O'Shea~\cite{Cox-Little-OShea:I-V-A}).      
+We give a description of one of the signature-based approaches due to Gao {\em et al.} in \cite{Gao-Volny-Wang:signature-GBs} followed by its modification needed to compute equivariant \GBs.  
 
 \subsection{Strong \GB}
 
@@ -11,16 +11,16 @@ A subset $G$ of
 \[
 P = \{(s,f)\in R^r\times R \mid f=s\cdot F = \sum_{i=1}^r s_iF_i\}.
 \]
-is called a {\em strong Gr\"obner basis} if every non-zero pair is {\em top-reducible} by some pair in $G$.
+is called a {\em strong \GB } if every non-zero pair is {\em top-reducible} by some pair in $G$.
 
-The pair $(s_f,f)$ is {\em top-reducible} by $(s_g,g)$ if $\LM g |\LM f$ and 
+A pair $(s_f,f)$ is {\em top-reducible} by $(s_g,g)$ if $\LM g |\LM f$ and 
 for some $a$, $\LM f = a \LM g$, we have $a\LM s_g\leq \LM s_f$.  If the reduction,
 \[
-(f',s_{f'}) := (f-ag,s_f-as_g),
+(s_{f'},f') := (s_f-as_g,f-ag),
 \]
 has $\LM s_{f'} = \LM s_f$, then it is {\em regular top-reducible}.
 
-If $G$ is a strong GB, then by Proposition 2.2 of~\cite{Gao-Volny-Wang:signature-GBs}
+If $G$ is a strong \GB, then by Proposition 2.2 of~\cite{Gao-Volny-Wang:signature-GBs}
 \begin{enumerate}
    \item $\{f:(s,f)\in G\}$ is a \GB\ of $I$ and 
    \item $\{s:(s,0)\in G\}$ is a \GB\ of the module of syzygies $\Syz(F) \subset R^r$.
@@ -78,11 +78,11 @@ To draw parallels with the approach of the previous section we need to work with
 P = \{(s,f)\in (R*\Pi)^r\times R \mid f=s\cdot F\}.
 \]
 Recall that, for instance, in our running example $\Pi=\{\rho_i:i\in\NN\} \subset \Inc$, so \[R*\Pi = K[X]*\Pi = K([X]*\Pi).\] 
-The semidirect product $[X]*\Pi$ is a {\em non-Noetherian noncommutative} monoid.
+The semidirect product $[X]*\Pi$ is a {\em non-Noetherian noncommutative} monoid. If follows that the (left) module $(R*\Pi)^r$ is not $\Pi$-Noetherian. 
 
-If follows that the module $(R*\Pi)^r$ is not $\Pi$-Noetherian. A strong equivariant \GB, that can be defined similarly to the strong \GB\ in the previous section, is infinite.
-
-(EXAMPLE with $|F|=1$.)
+A strong equivariant \GB, that can be defined similarly to the strong \GB\ in the previous section, is infinite (for) a nonzero $\Pi$-invariant ideal). 
+For instance, for a $I = R = K[x_1,x_2,\ldots]$ has a \GB\ $\{1\}$.
+However, a strong \GB\ has to include $\{(\rho_i-1)e_1 \mid i\in\NN \} \subset (R*\Pi)^1$. 
 
 We found a way to modify Algorithm~\ref{alg:StrongBuchberger} to compute an equivariant \GB.  The algorithm below, of course, falls short of computing a strong equivariant \GB, but the partial information computed about the syzygies and the mechanism of top-reduction of J-pairs eliminate a large number of unnecessary iterations in a na\"ive implementation of an equivariant Buchberger's algorithm~(Algorithm \ref{alg:Buchberger}).
 
