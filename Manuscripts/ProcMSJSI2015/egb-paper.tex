@@ -1,9 +1,14 @@
-\documentclass[12pt]{amsart}
+\documentclass[11pt]{amsart}
 \usepackage{amssymb}
 \usepackage{algorithmic}
 \usepackage{comment}
 \usepackage{color}
 \usepackage{soul}
+\usepackage{setspace}
+
+\newenvironment{M2}{ \begin{spacing}{0.4} %\begin{quote}
+\bigskip \small} { \smallskip %\end{quote}
+\end{spacing} }
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
@@ -52,6 +57,7 @@
 \newcommand{\cover}{\widetilde}
 \newcommand{\closure}{\overline}
 \newcommand{\Inc}{\operatorname{Inc}(\B N)}
+\newcommand{\IncT}{\operatorname{Inc}^\tau(\B N)}
 \newcommand{\SymN}{\F S_\infty}
 \newcommand{\Sn}{\tilde{\F S}_n}
 \newcommand{\Snp}{\tilde{\F S}_{n'}}
@@ -138,8 +144,6 @@ Algorithmic computation in polynomial rings is a classical topic in mathematics.
 \section{A signature-based approach}\label{sec:signature}
 
 \input{egb-signature.tex}
-
-\section{Examples}
 
 \bibliographystyle{plain}
 \bibliography{egb}

@@ -94,6 +94,23 @@ This fact that the $\Sym$-orbit of any $f$ is a finite union of $\Inc$-orbits im
  \end{itemize}
 \end{proposition}
 
+\begin{remark}\label{rem:IncT}
+For practical purposes, we may replace $\Inc$ with $\IncT$, the monoid of all increasing maps
+$\pi:\NN \to \NN$ such that $\im(\pi)$ has a finite complement. 
+For $i \in \NN$ let $\tau_i$ denote the element of $\Pi$ defined by
+\[ \tau_i(j)=
+\begin{cases} 
+	j & \text{if $j<i$, and}\\
+	j+1 & \text{if $j \geq i$.}
+\end{cases}
+\]
+The maps $\tau_i$ generate $\Pi$, and they satisfy relations
+\[ \tau_{j+1}\tau_i=\tau_i \tau_j \text{ if }j \geq i. \]
+This gives a presentation of $\Pi$, and any element of $\Pi$
+has a unique expression of the form $\tau_{i_1} \cdots \tau_{i_d}$
+with $d \in \NN_0$ and $i_1 \leq \ldots \leq i_d$.
+\end{remark}
+
 When computing Gr\"obner bases of $\Sym$-invariant ideals we will work with the $\Inc$ action instead.  If $G$ is an $\Inc$-equivariant Gr\"obner basis for $\Sym$-invariant ideal $I$, then the $\Sym$-orbits of $G$ also form a Gr\"obner basis of $I$.  Generally the rings we are interested in will have $\Inc$ respecting monomial orders.
 
 \begin{example}
