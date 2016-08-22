@@ -70,14 +70,11 @@ This generator is typically referred to as the {\em S-pair} of $f,g$.  Therefore
   \[ \left(\frac{m}{\LT \sigma'_1 f} \sigma'_1 f,\; \frac{m}{\LT \sigma'_2 g} \sigma'_2 g\right) \]
  with $\sigma'_1:[w(f)] \to [w(f) + w(g)]$ and $\sigma'_2:[w(g)] \to [w(f) + w(g)]$ where $m = \lcm(\LT \sigma'_1 f,\LT \sigma'_2 g)$.
 \end{proof}
-{\color{red} (incmap.ps is missing on github)}
-\begin{comment}
 \begin{figure}[ht]\label{fig:interlace}
   \centering
   \includegraphics[width=.7\columnwidth]{incmap.ps}
-  \caption{A pair of}
+  \caption{For $f$ and $g$ of width 5 and 6 respectively, any S-pair, $(\rho_1 f,\rho_2 g)$, is in the orbit of some S-pair obtained from an ``interlacing'' of $[5]$ and $[6]$, $(\sigma f,\tau g)$.}
 \end{figure}
-\end{comment}
 
 We note that Algorithm \ref{alg:Buchberger} is guaranteed to terminate when $R$ is $\Pi$-Noetherian.  Let $G_0,G_1,\ldots$ be the value of $G$ at each step.  The initial ideals of these sets form a strictly increasing chain of $\Pi$-invariant monomial ideals
  \[ \ideal{\LT G_0}_\Pi \subsetneq \ideal{\LT G_1}_\Pi \subsetneq \cdots \]
