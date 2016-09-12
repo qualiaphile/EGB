@@ -1,26 +1,29 @@
-(Early years: Cohen?)
 
-(Rediscovery: Aschenbrenner-Hillar)
+The theory of polynomial rings is an old and well-studied subject.  However, as far as we can tell, a rigorous set of tools for algorithmic computation in such rings was only first developed starting in 1913 \cite{gjunter1913} by the Leningrad mathematician N.~Gjunter.  This project culminated with Gjunter's review of the theory in 1941 \cite{gunther1941modules}, but perhaps because of the obscurity of journals in which he published (such as ``Anthology of the Institute for Bridges and Highways"), much of Gjunter's work went unnoticed until recently \cite{renschuch2003contributions}.  Outside of this rather newly discovered reference, attribution of an algorithmic theory of polynomial rings and ideals is usually given to Buchberger \cite{buchberger1965algorithmus}, who named the main tools ``Gr\"obner bases" after his Ph.D. advisor, and Hironaka \cite{hironaka1964resolution}, who used a similar concept called ``standard bases" to prove his theorem on resolutions of singularities.  
 
-(Applications: Draisma, japanese statisticians?)
+A main consequence of these projects is an effective procedure for the decidability of polynomial equations over fields such as the complex numbers $\mathbb{C}$.  Practical questions of ideal membership or equation feasibility were now answerable using a finite programmable set of computations.  
 
-(Toric ideals: DEKL, etc.)
+Since these early efforts, much progress has been made on the mathematical and computational theory of polynomial algebra involving a finite number of indeterminates.  Here, we consider computation in rings with infinite numbers of indeterminates, a topic that is part of a burgeoning new field called ``asymptotic algebra".  At first, such a concept seems at odds with the non-Noetherianity of even simple ideals such as the maximal ideal \[I = \langle x_1, x_2, \ldots  \rangle \subset \mathbb C[x_1, x_2,\ldots].\]
+However, if extra structure is imposed on the class of ideals under consideration, such as a large group action, then it is possible to develop a theory of algorithmic computation.  
 
-(Hilbert functions???: Nagel-Roemer, Krone et al.)
+First used in an application to meta-abelian group theory \cite{cohen1967laws} and later developed into an algorithmic theory \cite{Emmott, Cohen87}, the concept of ``Equivariant Gr\"obner bases" was rediscovered in \cite{aschenbrenner2007finite} and applied to solve in a unified manner several problems in algebraic statistics \cite{hillar2012finite}.  The theory was also useful in other applications such as those to algebraic chemistry \cite{Draisma08b} and asymptotic tensor algebra \cite{draisma2014bounded} (see \cite{draisma2014noetherianity} for a survey of these techniques).
+
+In the meantime, several works have started to make practical use of this effective computational machinery.  As a simple example, consider the result about $2 \times 2$ minors generating the ideal corresponding to the union of kernels of the toric ideal $\ker{(x_{ij} \mapsto t_i t_j)}$.  In this case, as first symbolically computed by Draisma, we have:
+\[ put computation here.\]
+The form of the polynomials above proves a theorem of Sturmfels.
+
+We close with a challenge computation.  Can you do symbolically:
+\[ \ker{(x_{ij} \mapsto t_i^2 t_j)}.\]
+Computation of this seemingly simple example would prove the first non-trivial case of a conjecture in \cite{aschenbrenner2007finite}.
+
+Our goal here is to outline the current state of effective computation in this setting and provide a background for young researchers to start to tackle this new computational domain.  Already this field is experiencing a growth of results and understanding \cite{Nagel, krone2016hilbert}.
+
+However, much work still needs to be done to make more interesting examples computable in reasonable time.  We hope that our treatment here inspires the development of more sophisticated methods for asymptotic algebra.
 
 
-\cite{renschuch2003contributions}
 
 
 
-\cite{aschenbrenner2008algorithm}
-
-1913 ideas started: \cite{gunther1941modules}
 
 
-\cite{cohen1967laws}
-\cite{Cohen87}
 
-\cite{hillar2012finite}
-\cite{Hillar13}
-\cite{hillar2016corrigendum}
