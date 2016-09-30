@@ -15,11 +15,16 @@ o3 = matrix {{25*y^6-10*y^3*t-9*y^2+t^2, z-x-y, ...
 \end{verbatim}
 \end{M2}  
 \medskip
+The variables $z,x,y,t$ represent $F_{n+1}, F_{n-1}, F_n, F_{3n}$, respectively.  The first polynomial defines the recurrence, the second is Cassini's identity, and the third is Lucas's identity.
+
 One can check that factoring the first polynomial in the list above gives (\ref{F3n}).  Bootstrapping this with extra equations, we can discover that:
 \begin{equation}\label{F5n}
 (F_{5n} - 25 F_n^5 - 25 F_n^3 - 5 F_n)(F_{5n} - 25 F_n^5 + 25 F_n^3 - 5 F_n) = 0,
 \end{equation}
-In fact, this more delicate analysis shows that $5F_n \, | \, F_{5n}$.  In turn, this incites conjectures and proofs.  This is an example of the promise of symbolic computation (with Gr\"obner bases) for the recreational mathematician, but there is more than this possible.
+In turn, this incites conjectures and proofs.  
+For instance, we leave it to the reader to use modular arithmetic to verify from (\ref{F5n}) that the integer $\frac{F_{5n}}{5F_n}$ always has unit digit $1$.  This is an example of the promise of symbolic computation (with Gr\"obner bases) for the recreational mathematician, but there is more than this possible.
+
+If you are dealing with an interesting problem, it is likely NP-hard.  Thus, any method that can cut down on the exponential search space and finish in a reasonable amount of time is a success.  
 
 Consider the case of vertex 3-colorings of graphs.  Although exponential in the worst-case \cite[pp. 400]{yap2000fundamental}, Gr\"obner bases methods can be used to check or disprove conjectures in graph theory.  This was outlined theoretically in \cite{bayer1982division}, with success on a moderate-sized example \cite{hillar2008algebraic}, so-called Xu's conjecture \cite{shaoji1990size}, previously proved by other means and in much greater generality \cite{akbari2001kr}.
 
