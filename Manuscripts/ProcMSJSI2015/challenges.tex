@@ -2,7 +2,7 @@
 In this final section, we raise several computational challenges and theoretical problems arising from equivariant Gr\"obner bases (EGB) and asymptotic symbolic algebra.  Often these challenge problems can serve as benchmark tests for sharpening the methods of practitioners who are improving and implementing these new classes of algorithms.
 
 \begin{problem}
-Compute symbolically (EGB) generators for the chain of toric ideals $I_n = \ker(x_{ij} \mapsto t_i^3 t_j)$, $1 \leq i,j \leq n$.  Compare with \cite{Hillar13, hillar2016corrigendum, KKL:equivariant-markov, draisma2013noetherianity}.
+Compute symbolically (EGB) generators for the chain of toric ideals $I_n = \ker(y_{ij} \mapsto x_i^3 x_j)$, $1 \leq i \neq j \leq n$.  Compare with \cite{Hillar13, hillar2016corrigendum, KKL:equivariant-markov, draisma2013noetherianity}.  What about with the smaller number of indeterminates $1 \leq j < i \leq n$?  (see \cite[Remark 6.3]{draisma2013noetherianity}).
 \end{problem}
 
 %\begin{problem}
@@ -13,7 +13,7 @@ Compute symbolically (EGB) generators for the chain of toric ideals $I_n = \ker(
 The following would advance the basic understanding of the structure of these special class of ideals.
 
 \begin{problem}
-Develop the combinatorics to understand the case of kernels with more than two indices such as $\ker(x_{ijk} \mapsto t_i^3 t_j^2 t_k)$?  
+Develop the combinatorics to understand the case of kernels with more than two indices such as $\ker(y_{ijk} \mapsto x_i^3 x_j^2 x_k)$?  
 %(See \cite{KKL:equivariant-markov}).
 \end{problem}
 
@@ -60,7 +60,7 @@ For instance, in \cite{draisma2014bounded, Draisma12f} a universal degree bound 
 Prove bounds for structure constants of chains of ideals..
 \end{problem}
 
-
+Given the powerful applications of Gr\"obner bases methods to understanding systems of polynomial equations, it is natural to ask how much of this machinery transfers over to the equivariant case.
 
 \begin{problem}
 Develop an effective elimination theory for asymptotic polynomial algebra.
@@ -78,11 +78,13 @@ Most of the considerations here have involved specific monoids, such as the mono
 Study equivariant Gr\"obner bases for other monoids.
 \end{problem}
 
-Question of finiteness in non-commutative settings have inspired workers in Gr\"obner bases from early days \cite{shirshov1962some, bokut1976embeddings, bergman1978diamond} to recent times \cite{la2009letterplace}.
+Question of finiteness in non-commutative settings have inspired workers in Gr\"obner bases from early days \cite{shirshov1962some, bokut1976embeddings, bergman1978diamond} to recent times \cite{drensky2006grobner, la2009letterplace}.
 
 \begin{problem}
 Develop practical non-commutative extensions to equivariant Gr\"obner bases.
 \end{problem}
 
 With these and other fundamental problems still unresolved, the field of asymptotic algebra has many productive years ahead of itself.
+
+
 
