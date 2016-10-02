@@ -24,7 +24,7 @@
 \newtheorem{xca}[theorem]{Exercise}
 \newtheorem{algorithm}[theorem]{Algorithm}
 
-\theoremstyle{remark}
+\theoremstyle{re`mark}
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem{criterion}[theorem]{Criterion}
 
@@ -139,11 +139,13 @@ Algorithmic computation in polynomial rings is a classical topic in mathematics.
 
 \subsection{Structure of the paper}
 
-\section{Preliminaries}
+After some preliminaries in Section \ref{prelim}, we quickly move to describing equivariant Gr\"obner bases algorithms in Section \ref{EGB}.  The next section then goes on to explain a modern signature-based approach, and a final section outlines computational and theoretical challenges for future exploration.
+
+\section{Preliminaries}\label{prelim}
 
 \input{preliminaries.tex}
 
-\section{Equivariant Buchberger algorithm}
+\section{Equivariant Buchberger algorithm}\label{EGB}
 
 \input{e-buchberger.tex}
 
