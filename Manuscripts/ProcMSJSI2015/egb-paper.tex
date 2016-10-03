@@ -8,8 +8,10 @@
 \usepackage{graphicx}
 
 \newenvironment{M2}{ \begin{spacing}{0.4} %\begin{quote}
-\bigskip \small} { \smallskip %\end{quote}
-\end{spacing} }
+\bigskip \small} { %\end{quote}
+\end{spacing} 
+\bigskip 
+}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
@@ -24,7 +26,7 @@
 \newtheorem{xca}[theorem]{Exercise}
 \newtheorem{algorithm}[theorem]{Algorithm}
 
-\theoremstyle{re`mark}
+%\theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem{criterion}[theorem]{Criterion}
 
@@ -87,41 +89,39 @@
 
 \newcommand{\GB}{{Gr\"obner basis}}
 \newcommand{\GBs}{{Gr\"obner bases}}
+\newcommand{\EGB}{{equivariant Gr\"obner basis}}
+\newcommand{\EGBs}{{equivariant Gr\"obner bases}}
 
 \begin{document} \title{Equivariant Gr\"obner bases}
 
  %   Information for first author 
 \author{Christopher J. Hillar}
-\address{Redwood Center for Theoretical Neuroscience, University of California, Berkeley, CA}
+\address{University of California, Berkeley}
 \email{chillar@msri.org}
 
 \author{Robert Krone}
-\address{Georgia Tech University, Atlanta, GA}
-\email{krone@math.gatech.edu}
+\address{Queens University}
+\email{rk71@queensu.ca}
 
 \author{Anton Leykin}
-\address{Georgia Tech University, Atlanta, GA}
-\email{anton.leykin@gmail.com}
+\address{Georgia Tech}
+\email{leykin@math.gatech.edu}
+\thanks{Research of AL is supported in part by NSF grant DMS-1151297.}
 
-\thanks{Part of this work took place during the ``Free Resolutions, Representations, and Asymptotic Algebra" workshop at the BANFF International Research Station, April, 2016.} 
+\thanks{Part of this work took place during the ``Free Resolutions, Representations, and Asymptotic Algebra'' workshop at the BANFF International Research Station, April, 2016.} 
 
-\subjclass{13E05, 13E15, 20B30, 06A07}
+%\subjclass{13E05, 13E15, 20B30, 06A07}
 
-\keywords{Invariant ideal, well-quasi-ordering, symmetric group, Gr\"obner basis, generating sets, infinite dimensional algebra}
-
-
-% \keywords{}
-
+%\keywords{Invariant ideal, well-quasi-ordering, symmetric group, Gr\"obner basis, generating sets, infinite dimensional algebra}
 
 % ----------------------------------------------------------------
 \begin{abstract}
-Algorithmic computation in polynomial rings is a classical topic in mathematics. However, little attention has been given to the case of rings with an infinite number of variables until recently when theoretical efforts have made possible the development of effective routines. The key concept allowing the bypassing of non-Noetherianity is the restriction of computation to ideals invariant under a large group (or monoid) action, such as the permutations of the positive integers. Here, we summarize the current state of this computational paradigm of equivariant Groebner bases, develop it further, and present a software package for implementing some of this exciting new machinery.
+Algorithmic computation in polynomial rings is a classical topic in mathematics. However, little attention has been given to the case of rings with an infinite number of variables until recently when theoretical efforts have made possible the development of effective routines. Ability to compute relies on finite generation up to symmetry for ideals invariant under a large group or monoid action, such as the group of permutations of the natural numbers. We summarize the current state of theory and applications for equivariant Gr\"obner bases, develop several algorithms to compute them, and showcase our software implementation. 
 \end{abstract} 
 
 \maketitle 
-\tableofcontents
+%\tableofcontents
 \section{Introduction}
-
 \subsection{History}
 
 \input{history.tex}
@@ -137,9 +137,15 @@ Algorithmic computation in polynomial rings is a classical topic in mathematics.
 %
 %\input{basic.tex}
 
-\subsection{Structure of the paper}
+\subsection{Structure and goals of this article}
 
-After some preliminaries in Section \ref{prelim}, we quickly move to describing equivariant Gr\"obner bases algorithms in Section \ref{EGB}.  The next section then goes on to explain a modern signature-based approach, and a final section outlines computational and theoretical challenges for future exploration.
+After some preliminaries in Section~\ref{prelim}, we quickly move to describing equivariant Gr\"obner bases algorithms in Section~\ref{EGB}.  Section~\ref{sec:signature} goes on to explain a modern signature-based approach and an inspired by this approach strategy for an equivariant Buchberger's algorithm. The final Section~\ref{sec:challenges} outlines computational and theoretical challenges for future exploration.
+
+%(Anton: I am not sure we need to single this one out.)
+%Even today, improvements and simplifications of the classical theory are taking place \cite{schauenburg2007grobner}.  
+Since the introduction, Gr'\"obner bases techniques have improved and got refined immensely.  We believe that in this new setting of infinite-dimensional polynomial algebras, which demands more far more computational power, the algorithmic development at the beginning of a similar road. We hope a similar progress in theoretical understanding and in computing techniques occurs in the future.
+
+Our goal here is to outline the current state of effective computation in this setting and provide a background for other researchers to start to tackle this new computational domain.  
 
 \section{Preliminaries}\label{prelim}
 
@@ -153,7 +159,7 @@ After some preliminaries in Section \ref{prelim}, we quickly move to describing 
 
 \input{egb-signature.tex}
 
-\section{Challenges}\label{sec:challenges}
+\section{Open questions and challenges}\label{sec:challenges}
 
 \input{challenges.tex}
 
