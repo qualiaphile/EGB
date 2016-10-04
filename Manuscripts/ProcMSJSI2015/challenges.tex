@@ -13,27 +13,18 @@ Develop combinatorial mehtodology to understand the case of kernels with more th
 
 %Anton: what is "nice"?
 % i don't see a problem with this. -cjh
-There are also some basic questions in the theory of EGBs that remain open.  For instance, it is not so well-understood exactly which classes of ideals have finite generation, much less an equivariant Gr\"obner basis.  Even when finite generation is known, other problems still remain open.  For instance, while it is now known that chains of kernels induced by monomials stabilize \cite{aschenbrenner2007finite, KKL:equivariant-markov, draisma2013noetherianity}, it is still not known whether there is a nice algorithmic generating set, such as an EGB.
-
-% Anton: this is known by Krone:egb-toric.
-% cjh:  hmm, i don't think so:
-% does (Krone:egb-toric) show that these toric ideals have an EGB?
-% see specifically, the last sentence in section 4 of
-% https://arxiv.org/abs/1401.0397
-% and also Example 6.2 in 
-% https://arxiv.org/abs/1306.0828
-\begin{question}
-Is there always an equivariant Gr\"obner basis for chains of toric ideals induced by a monomial?
-\end{question}
-
-% Anton: if "toric chain" means kernels of monomial maps, then DEKL gives a positive answer.
-% well, there are lots of other chains of toric ideals.  for instance, replace "monomial" with "polynomial".  -cjh
-
-There are other questions that are still unresolved about chains of toric ideals.  For example, as far as we know, it is still an open question whether every invariant toric chain of ideals stabilizes (see \cite{Hillar13} for evidence in the Laurent case).  This guiding question in asymptotic polynomial algebra has led to much progress in the field.  The following is one generalization to the notion of chains induced by a monomial that should be fruitful both theoretically and computationally.
+There are also some basic questions in the theory of EGBs that remain open.  For instance, it is not so well-understood exactly which classes of ideals have finite generation, much less an equivariant Gr\"obner basis.  For example, as far as we know, it is still an open question whether every invariant toric chain of ideals stabilizes (see \cite{Hillar13} for evidence in the Laurent case).  This guiding question in asymptotic polynomial algebra has led to much progress in the field.  The following is one generalization to the notion of chains induced by a monomial that should be fruitful both theoretically and computationally.
 
 \begin{problem}[Chains induced by a polynomial]
 Is there a finite set of (EGB) generators for the chain of toric ideals $I_n = \ker(y_{ij} \mapsto f(x_i,x_j))$, $1 \leq i \neq j \leq n$, for a given polynomial $f \in \mathbb C[s,t]$?  What about $f \in \mathbb C[r, s,t]?$
 \end{problem}
+
+More generally, is there always an equivariant Gr\"obner basis for chains of toric ideals induced by a polynomial?
+Even when finite generation is known, other problems still remain open.  For instance, while it is now known that chains of kernels induced by monomials stabilize \cite{aschenbrenner2007finite, KKL:equivariant-markov, draisma2013noetherianity} and have EGBs \cite{Krone:egb-toric}, it is still not known whether there is a nice algorithmic generating set, such as an EGB, for invariant chains induced by polynomials.
+
+\begin{question}
+Is there always an equivariant Gr\"obner basis for chains of toric ideals induced by a polynomial?
+\end{question}
 
 One largely unexplored aspect of research efforts to date is the structure of term orders for equivariant Gr\"obner bases.  In the classical application of Gr\"obner bases, term orders play a significant role and such concepts as the \emph{Gr\"obner fan} and techniques such as \emph{Gr\"obner walks} arise. These seem not to have equivalents in the equivariant setting in view of the following question.  
 
