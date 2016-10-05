@@ -8,8 +8,11 @@ which explains explicitly the strong divisibility in this case.   Is it possible
 \begin{M2}
 \begin{verbatim}
 i1: R = QQ[z, x, y, t, MonomialOrder => Eliminate 2]
+
 i2: I = ideal(x + y - z, (x*z - y^2)^2 - 1, t - z^3 - y^3 + x^3)
+
 i3: toString groebnerBasis I
+
 o3 = matrix {{25*y^6-10*y^3*t-9*y^2+t^2, z-x-y, ...
 \end{verbatim}
 \end{M2}  
@@ -44,13 +47,27 @@ The difference in this question from classical problems of polynomial algebra is
 \begin{M2}
 \begin{verbatim}
 i1: needsPackage "EquivariantGB"
-i2: R = buildERing({symbol x}, {1}, QQ, 3);
-i3: G = egb({x_0*x_1 - x_1*x_2^2 + x_1^2}, Algorithm=>Incremental)
-i4: reduce(h, G)
+
+i2: R = buildERing({symbol x}, {1}, QQ, 6);
+
+i3: h = x_0*x_4^2+x_0*x_1^2+x_1*x_0^2-2*x_1*x_0+x_0*x_3*x_4- ...
+
+i4: G = egb({x_0*x_1 - x_1*x_2^2 + x_1^2}, Algorithm=>Incremental)
+
+       2       2      2           3      2     2    2         
+o4 = {x x  - 2x  + x x  - 2x x , x  - x x , x x  - x  - x x , 
+       1 0     1    1 0     1 0   1    1 0   2 0    1    1 0 
+
+                    2           2 
+      x x  - x x , x  + x x  - x  - x x }
+       2 1    2 0   2    2 0    1    1 0
+
+i5: reduce(h, G)
+
+o5 = 0
 \end{verbatim}
 \end{M2}  
-It produces an equivariant Gr\"obner basis: $$\{x_1^3 x_0+x_1 x_0^2, x_1^4+x_1^2 x_0, x_2 x_0^2, x_2 x_1-x_2 x_0, x_2^2 x_0-x_1^3-x_1 x_0, x_2^3+x_2 x_0-x_1^3-x_1 x_0\}.$$  
-With these special generators, we can solve ideal membership problems and much more, just as classical Gr\"obner bases have numerous applications.  %Note that arbitrarily large numbers of generators \cite{hillar2008minimal}.  
+With the \EGB\ produced above, we can solve ideal membership problems and much more, just as we can use classical Gr\"obner bases is numerous applications.  %Note that arbitrarily large numbers of generators \cite{hillar2008minimal}.  
 
 Developing the machinery to solve such questions is more than an intellectual curiosity.  Basic facts can now be proved by computer such as Theorem~\ref{toric2x2}, but also cutting edge conjectures can be answered using these methods.  For instance, using \cite{EquivariantGB}, it is possible to verify \cite{draisma2013noetherianity, Krone:egb-toric} the first non-trivial case of a basic finiteness conjecture for toric ideals \cite{aschenbrenner2007finite}.  
 
@@ -60,8 +77,7 @@ For $n > 1$, let $I_n = \ker (y_{ij} \mapsto x_i^2 x_j)$, $1 \leq i \neq j \leq 
 
 %We note that whether there is always an equivariant Gr\"obner bases is still an open question.
 
-We next list the various applications of computation in rings with infinite numbers of indeterminates.  
-We stick to applications that are algebraic in nature although there are many interesting topological directions (e.g., Homological stability \cite{randal2013homological, church2012homological}).
+We next list applications of \EGBs\ in rings with infinite numbers of indeterminates.  
 
 \subsubsection{Group theory and Chemistry}
 
@@ -72,14 +88,20 @@ Independently, it was problems in algebraic chemistry \cite{ruch1967vandermondes
 
 A big inspiration for asymptotic polynomial algebra comes from the study of certain chains of toric ideals, many of which arise naturally in algebraic statistics.  The series of works \cite{Hillar13, hillar2016corrigendum, draisma2013noetherianity, KKL:equivariant-markov, Krone:egb-toric} have developed fundamental finiteness properties of these structures.  Basic questions remain open, however, as we outline in Section \ref{sec:challenges}.  
 
-In this regard, one of the major motivations for EGBs and infinite symbolic algebra is its application to the problem of sampling from conditional distributions by algebraic methods \cite{diaconis1998algebraic}.  At its essence, the strategy is to find a set of moves through model space that preserves the sufficient statistics of the data.   The idea then is to consider growing families of model classes and show that up to obvious symmetries only a finite set of moves suffices for all infinite numbers of models (e.g., \cite{aoki2003minimal, santos2003higher, hocsten2007finiteness, drton2007algebraic, Draisma08b, Brouwer09e, draisma2009ideals, hillar2012finite, draisma2015finiteness}).  Typically, these moves correspond to elements of a Gr\"obner basis or at least a generating set for some ideal.
+In this regard, one of the major motivations for \EGBs\ and infinite symbolic algebra is its application to the problem of sampling from conditional distributions by algebraic methods \cite{diaconis1998algebraic}.  At its essence, the strategy is to find a set of moves through model space that preserves the sufficient statistics of the data.   The idea then is to consider growing families of model classes and show that up to obvious symmetries only a finite set of moves suffices for all infinite numbers of models (e.g., \cite{aoki2003minimal, santos2003higher, hocsten2007finiteness, drton2007algebraic, Draisma08b, Brouwer09e, draisma2009ideals, hillar2012finite, draisma2015finiteness}).  Typically, these moves correspond to elements of a Gr\"obner basis or at least a generating set for some ideal.
 
 % Anton: I don't see any S_\infty GBs showing up here...
 % i still think these are all fairly relevant -cjh
-\subsubsection{Algebraic geometry and infinite-dimensional polynomial rings}
-There are many other natural places in which finiteness up to symmetry plays an important role.  For instance, it appears in the moduli space of $n$ points in a line \cite{howard2009equations}, geometry as the positivity of the the embedding line bundle grows \cite{ein2012asymptotic}, syzygies of Segre embeddings \cite{snowden2013syzygies}, Betti tables as their length goes to infinity \cite{ein2015asymptotics}, tensor geometry \cite{draisma2014bounded, draisma2015finiteness}, and limiting Grassmanians \cite{draisma2015plucker}.
 
-Recently, Nagel and R\"omer~\cite{Nagel} introduced Hilbert series for Noetherian infinite-dimensional rings. Their original theoretical treatment that leads to a proof of rationality of the Hilbert series, in principle, also leads to an effective procedure to compute the series. For an ideal generated up to symmetry by one monomial, such computation was carried out in~\cite{gunturkun2016equivariant}. An alternative approach of~\cite{krone2016hilbert} computes the Hilbert series given an equivariant Gr\"obner basis as the generating function counting words in a regular language.  Gr\"obner methods have also been used to understand representations of combinatorial categories \cite{sam2016grobner}
+\subsubsection{Invariants}
+Recently, Nagel and R\"omer~\cite{Nagel} introduced Hilbert series for Noetherian infinite-dimensional rings. Their original theoretical treatment that leads to a proof of rationality of the Hilbert series, in principle, also leads to an effective procedure to compute the series. For an ideal generated up to symmetry by one monomial, such computation was carried out in~\cite{gunturkun2016equivariant}. An alternative approach of~\cite{krone2016hilbert} computes the Hilbert series given an equivariant Gr\"obner basis as the generating function counting words in a regular language.  
+
+\subsection{Finiteness up to symmetry in general}
+Although the \EGBs\ described in this article may not directly apply, finiteness up to symmetry plays the central role in the following results (this list is by no means exhaustive).  
+
+It appears in homological stability~\cite{randal2013homological, church2012homological},  the moduli space of $n$ points in a line~\cite{howard2009equations}, geometry as the positivity of the the embedding line bundle grows \cite{ein2012asymptotic}, syzygies of Segre embeddings~\cite{snowden2013syzygies}, Betti tables as their length goes to infinity~\cite{ein2015asymptotics}, tensor geometry~\cite{draisma2014bounded, draisma2015finiteness}, and limiting Grassmannians~\cite{draisma2015plucker}.
+Gr\"obner methods have also been used to understand representations of combinatorial categories \cite{sam2016grobner}.
+
 
 %Anton: This is generally related. Grobner categories -- yes, EGBs in our sense -- no.
 % i still like all these -cjh
