@@ -1,4 +1,4 @@
-Here we decribe an approach to computing equivariant \GBs\ utilizing the information stored in {\em signatures}. 
+Here we describe an approach to computing equivariant \GBs\ utilizing the information stored in {\em signatures}. 
 
 Signature-based algorithms for computing \GBs\ in the most common (finite-dimensional commutative) setting acquired popularity due to Faugere's F5 (see a short description in \S 4 of Chapter 10 of the new edition of Cox, Little, and O'Shea~\cite{Cox-Little-OShea:I-V-A}).      
 We give a description of one of the signature-based approaches due to Gao {\em et al.} in \cite{Gao-Volny-Wang:signature-GBs} followed by its modification needed to compute equivariant \GBs.  
@@ -169,7 +169,7 @@ o3 = {- x x  + y   , ...  ...  ...
 In particular, this computation shows that the kernel of the monomial map induced by $y_{ij}\mapsto x_ix_j$ is 
 $\ideal{y_{43}y_{21}-y_{42}y_{31},y_{42}y_{31}-y_{41}y_{32}}_{\IncT}$.
 
-The number of times a polynomial corresponding to a J-pair in hte queue $J$ was reduced to zero is {\bf 95}. However, in this signature-based algorithm the knowledge of 95 syzygies is still useful as their signatures are stored and may ``cover'' some J-pairs in the queue. The total number of covered J-pairs, 1528, could be taken as a measure of how many useless reductions are avoided.
+The number of times a polynomial corresponding to a J-pair in the queue $J$ was reduced to zero is {\bf 95}. However, in this signature-based algorithm the knowledge of 95 syzygies is still useful as their signatures are stored and may ``cover'' some J-pairs in the queue. The total number of covered J-pairs, 1528, could be taken as a measure of how many useless reductions are avoided.
 
 There is an optional parameter, \begin{center} \verb|egbSignature(...,PrincipalSyzygies=>true)|,\end{center} that instructs the algorithm to construct the so-called \emph{principal syzygies}, the syzygies that correspond to the trivial commutation relations on the generators: $(\sigma F_i) (\sigma' F_j)-(\sigma'F_j)(\sigma F_i)=0$, $i\neq j$, where $\sigma,\sigma'\in\Pi$ are extensions of the maps $[w(F_i)] \to [w(F_i) + w(F_j)]$ and $ [w(F_j)] \to [w(F_i) + w(F_j)]$.
 With this option the previous computation produces a much larger number of syzygies, {\bf 1114}; however, there is no improvement obtained in terms of covered J-pairs and the improvement in the number of J-pairs that need to be stored is insignificant. 

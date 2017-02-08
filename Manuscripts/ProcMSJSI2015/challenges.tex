@@ -8,61 +8,32 @@ Compute symbolically an EGB for the chain of toric ideals $I_n = \ker(y_{ij} \ma
 The case $a=2,b=1$ is the only case explicitly computed (Theorem~\ref{monomthm}). A variant of this problem has the same statement apart from considering a smaller subset of indices: $1 \leq j < i \leq n$ (see \cite[Remark 6.3]{draisma2013noetherianity}) and also more indices:
 
 \begin{problem}
-Develop combinatorial mehtodology to understand the case of kernels with more than two indices such as $\ker(y_{ijk} \mapsto x_i^3 x_j^2 x_k)$?  
+Develop combinatorial methodology to understand the case of kernels with more than two indices such as $\ker(y_{ijk} \mapsto x_i^3 x_j^2 x_k)$?  
 \end{problem}
 
-%Anton: what is "nice"?
-% i don't see a problem with this. -cjh
-There are also some basic questions in the theory of EGBs that remain open.  For instance, it is not so well-understood exactly which classes of ideals have finite generation, much less an equivariant Gr\"obner basis.  Even when finite generation is known, other problems still remain open.  For instance, while it is now known that chains of kernels induced by monomials stabilize \cite{aschenbrenner2007finite, KKL:equivariant-markov, draisma2013noetherianity}, it is still not known whether there is a nice algorithmic generating set, such as an EGB.
+There are also some basic questions in the theory of EGBs that remain open.  For instance, it is not so well-understood exactly which classes of ideals have finite generation, much less an equivariant Gr\"obner basis. 
+While \cite{draisma2013noetherianity} gives a definitive answer for a large class of invariant toric ideals (i.e., the kernels of equivariant monomial maps), the following question is open.
+\begin{question}[Kernel of a polynomial map]
+Is there a finite set of generators (up to symmetry) for the chain $I_n = \ker(y_{ij} \mapsto f(x_i,x_j))$, $1 \leq i \neq j \leq n$, for a given polynomial $f \in \mathbb C[s,t]$?  
+\end{question}
 
-% Anton: this is known by Krone:egb-toric.
-% cjh:  hmm, i don't think so:
-% does (Krone:egb-toric) show that these toric ideals have an EGB?
-% see specifically, the last sentence in section 4 of
-% https://arxiv.org/abs/1401.0397
-% and also Example 6.2 in 
-% https://arxiv.org/abs/1306.0828
+Even when finite generation is known, other problems still remain open.  
+ We know that the kernels of monomial maps stabilize \cite{aschenbrenner2007finite, KKL:equivariant-markov, draisma2013noetherianity} and have EGBs with respect to certain monomial orders~\cite{Krone:egb-toric}. What if the monomial order is not particularly nice? What if the map is a general equivariant polynomial map?
+
 \begin{question}
-Is there always an equivariant Gr\"obner basis for chains of toric ideals induced by a monomial?
+If the answer to the previous question is positive, is there a finite \EGB\ with respect to an arbitrary order?
 \end{question}
 
-% Anton: if "toric chain" means kernels of monomial maps, then DEKL gives a positive answer.
-% well, there are lots of other chains of toric ideals.  for instance, replace "monomial" with "polynomial".  -cjh
+One largely unexplored aspect of research efforts to date is the structure of term orders for equivariant Gr\"obner bases.  In the classical application of Gr\"obner bases, term orders play a significant role and such concepts as the \emph{Gr\"obner fan} and techniques such as the \emph{Gr\"obner walk} arise. These seem not to have equivalents in the equivariant setting in view of the following question.  
 
-There are other questions that are still unresolved about chains of toric ideals.  For example, as far as we know, it is still an open question whether every invariant toric chain of ideals stabilizes (see \cite{Hillar13} for evidence in the Laurent case).  This guiding question in asymptotic polynomial algebra has led to much progress in the field.  The following is one generalization to the notion of chains induced by a monomial that should be fruitful both theoretically and computationally.
-
-\begin{problem}[Chains induced by a polynomial]
-Is there a finite set of (EGB) generators for the chain of toric ideals $I_n = \ker(y_{ij} \mapsto f(x_i,x_j))$, $1 \leq i \neq j \leq n$, for a given polynomial $f \in \mathbb C[s,t]$?  What about $f \in \mathbb C[r, s,t]?$
-\end{problem}
-
-One largely unexplored aspect of research efforts to date is the structure of term orders for equivariant Gr\"obner bases.  In the classical application of Gr\"obner bases, term orders play a significant role and such concepts as the \emph{Gr\"obner fan} and techniques such as \emph{Gr\"obner walks} arise. These seem not to have equivalents in the equivariant setting in view of the following question.  
-
-\begin{question} For $R = \mathbb K[x_0,x_1,x_2,\ldots]$, there are several natural monomial orders respecting $\Inc$-action and refining the $\Inc$-divisibility partial order: namely, lexicographic and graded lexicographic orders.  Are there any others?
+\begin{question} For $R = \mathbb C[x_0,x_1,x_2,\ldots]$, there are several natural monomial orders respecting $\Inc$-action and refining the $\Inc$-divisibility partial order: namely, lexicographic and graded lexicographic orders.  Are there any others?
 \end{question}
-
-% Anton: not a good question. The weight vector is... invariant.
-% \begin{question}
-% Is there an equivariant Gr\"obner fan?  (See \cite{sturmfels1996grobner}).
-% \end{question}
-
-% Anton: if there an edge connecting i to j then the graph is... complete.
-% yes, this is not ready for prime-time.  cjh
-% There are of course theoretical questions involving the structure of these generating sets.  For instance, here is a basic problem.  Fix an infinite graph $G = (V,E)$ on vertices $V = \{1,2,\ldots\}$, and consider ideals generated by $\{x_i^3-1: i \in V\}$ and $\{x_i^2 + x_i x_j +x_j^2: \{i,j\} \in E\}$.  The equations cut out the possible vertex $3$-colorings of $G$ (colors are cube roots of unity) and the proper $3$-colorings (adjacent vertices have different colors), respectively.  Supposing that the set of edges have a large set of symmetries, finite computations involving these algebraic objects can lead to new theory and improvements to existing algorithms.  Moreover, there is likely a rich structure theory underlying these basic combinatorial ideals.
-
-% \begin{problem}\label{graphprob}
-% Develop theoretical and computational applications of equivariant Gr\"obner bases to infinite graph theory.
-% \end{problem}
 
 In classical computational algebra, Gr\"obner bases do more than simply answer ideal membership questions.  They also are used as input by other algorithms to find invariants describing the underlying geometry and algebra such as dimension, degree, Hilbert series, etc.  
 
 \begin{question}
 What is a good notion of the variety defined by an $\SymN$-invariant ideal (of an infinite-dimensional ring)? How should one define its dimension? 
 \end{question}
-
-\begin{problem}
-Develop algorithms implementing the computation of ``Hilbert series" of invariant ideals?  Compare with \cite{Nagel, krone2016hilbert}.
-\end{problem}
-
 
 \begin{question}
 Is there a better (alternative) notion of Hilbert series, one that would be suitable for $\Inc$-invariant modules? 
@@ -79,17 +50,11 @@ Is there a better (alternative) notion of Hilbert series, one that would be suit
 % Prove bounds for structure constants of chains of ideals.
 % \end{problem}
 
-% Anton: what's wrong with the usual elimination orders?
-% Given the powerful applications of Gr\"obner bases methods to understanding systems of polynomial equations, it is natural to ask how much of this machinery transfers over to the equivariant case.
-
-% \begin{problem}
-% Develop an effective elimination theory for asymptotic polynomial algebra.
-% \end{problem}
-
 While it is easily observed that, in practice, computations of EGBs tend to consume far more resources than in the classical case (per bit of input), there is no good understanding of theoretical complexity of an equivariant Buchberger's algorithm.
 
 \begin{question}
 Given widths and degrees of a finite set of generators, is there an upper bound on widths and degrees of the elements of a reduced EGB?
+
 If so, then one could look for lower bounds (in the worst case). 
 \end{question}
 
@@ -108,20 +73,26 @@ If so, then one could look for lower bounds (in the worst case).
 
 % With these and other fundamental problems still unresolved, the field of asymptotic algebra has many productive years ahead of itself.
 
-One of the largest computations done so far is that of~\cite{Brouwer09e}; it is accomplished by a custom made program (not available publicly). The output gives a definitive algebraic-statistical description of the two-factor model by means of EGBs.  We propose the following difficult challenge.
+One of the largest computations done so far is that of~\cite{Brouwer09e}; it is accomplished by a custom made program (not available publicly). The output gives a definitive algebraic-statistical description of the Gaussian two-factor model by means of EGBs.  We propose the following difficult challenge.
 
 \begin{problem}
-Compute an EGB for a three-factor model.
+Use EGBs to analyze the Gaussian three-factor model, i.e., obtain the kernel of the map
+\begin{align*} 
+\mathbb C[y_{ij} \mid i,j \in \NN, i > j] &\to \mathbb C[s_i,t_i,u_i \mid i \in \NN],\\ 
+y_{ij} &\mapsto s_is_j + t_it_j + u_iu_j\,.
+\end{align*}
 \end{problem} 
 
-While this would require exactly the same technique, the computation seems to present an insurmountable task for the current implementations of current algorithms executed on current computers.
+While this may be set up exactly with the same technique as in~\cite{Brouwer09e}, the computation seems to present an insurmountable task for the current implementations of current algorithms executed on current computers.
 
 %Anton: speculation?
 % yes, but there is some evidence.  better?  -cjh
-Finally, we close with speculation that an approach using tools from the representation theory of the symmetric group could be productive.  For instance, one might develop further the application of invariant modules \cite{camina1991some} to lattice ideals \cite{Hillar13} or the use of representation theory to study finite generation of ideals \cite{kemer2008analog}.
+% Anton: not convinced. the problem is vague. best to finish with a concrete challenge.
+ 
+% Finally, we close with speculation that an approach using tools from the representation theory of the symmetric group could be productive.  For instance, one might develop further the application of invariant modules \cite{camina1991some} to lattice ideals \cite{Hillar13} or the use of representation theory to study finite generation of ideals \cite{kemer2008analog}.
 
- \begin{problem}
- Develop tools from representation theory to understand the structure of equivariant ideals.
- \end{problem}
+%  \begin{problem}
+%  Develop tools from representation theory to understand the structure of equivariant ideals.
+%  \end{problem}
 
 
