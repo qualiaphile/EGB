@@ -4,7 +4,7 @@ The Fibonacci sequence $F_n = 1,1,2,3,5,\ldots$ ($n= 1, 2, \ldots$) is a \textit
 \begin{equation}\label{F3n}
 (F_{3n} - 5 F_n^3 - 3 F_n)(F_{3n} - 5 F_n^3 + 3 F_n) = 0,
 \end{equation}
-which explains in an explicit manner strong divisibility for this case.   Is it possible to use Gr\"obner bases to derive this identity?  The following Macaulay 2 code does exactly that:
+which explains in an explicit manner strong divisibility for this case.   Is it possible to use Gr\"obner bases to derive this relation?  The following Macaulay 2 code does exactly that:
 \begin{M2}
 \begin{verbatim}
 i1: R = QQ[z, x, y, t, MonomialOrder => Eliminate 2]

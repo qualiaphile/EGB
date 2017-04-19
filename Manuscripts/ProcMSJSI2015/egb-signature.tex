@@ -1,47 +1,46 @@
-Here we describe an approach to computing equivariant \GBs\ utilizing the information stored in {\em signatures}. 
+In this section, we describe an approach to computing equivariant \GBs\ that utilizes the information stored in {\em signatures}. 
 
-Signature-based algorithms for computing \GBs\ in the most common (finite-dimensional commutative) setting acquired popularity due to Faugere's F5 (see a short description in \S 4 of Chapter 10 of the new edition of Cox, Little, and O'Shea~\cite{Cox-Little-OShea:I-V-A}).      
-We give a description of one of the signature-based approaches due to Gao {\em et al.} in \cite{Gao-Volny-Wang:signature-GBs} followed by its modification needed to compute equivariant \GBs.  
+Signature-based algorithms for computing \GBs\ in the most common (finite-dimensional, commutative) setting acquired popularity due to Faugere's F5 (see a short description in \S 4 of Chapter 10 of the new edition of Cox, Little, and O'Shea~\cite{Cox-Little-OShea:I-V-A}).      
+We give a description of one of the signature-based approaches due to Gao {\em et al.} in \cite{Gao-Volny-Wang:signature-GBs}, followed by its modification needed to compute equivariant \GBs.  
 
 \subsection{Strong \GB}
 
-Let $I=\ideal{F} \subset R=K[x_1,\ldots,x_n]$, where $|F|=r\in\NN$.
+Let $I=\ideal{F} \subset R=K[x_1,\ldots,x_n]$, where $|F|=r\in\mathbb N$.
 
-A subset $G$ of 
+A subset $G$ of:
 \[
-P = \{(s,f)\in R^r\times R \mid f=s\cdot F = \sum_{i=1}^r s_iF_i\}.
+P = \{(s,f)\in R^r\times R \mid f=s\cdot F = \sum_{i=1}^r s_iF_i\}
 \]
-is called a {\em strong \GB } if every non-zero pair is {\em top-reducible} by some pair in $G$.
+is called a {\em strong \GB } if every nonzero pair is {\em top-reducible} by some pair in $G$.
 
 A pair $(s_f,f)$ is {\em top-reducible} by $(s_g,g)$ if $\LM g |\LM f$ and 
-for some $a$, $\LM f = a \LM g$, we have $a\LM s_g\leq \LM s_f$.  If the reduction,
+for some $a$ with $\LM f = a \LM g$, we have $a\LM s_g\leq \LM s_f$.  If the reduction:
 \[
-(s_{f'},f') := (s_f-as_g,f-ag),
+(s_{f'},f') := (s_f-as_g,f-ag)
 \]
 has $\LM s_{f'} = \LM s_f$, then it is {\em regular top-reducible}.
 
-If $G$ is a strong \GB, then by Proposition 2.2 of~\cite{Gao-Volny-Wang:signature-GBs}
+If $G$ is a strong \GB, then by Proposition 2.2 of~\cite{Gao-Volny-Wang:signature-GBs}:
 \begin{enumerate}
-   \item $\{f \mid (s,f)\in G\}$ is a \GB\ of $I$ and 
+   \item $\{f \mid (s,f)\in G\}$ is a \GB\ of $I$, and 
    \item $\{s \mid (s,0)\in G\}$ is a \GB\ of the module of syzygies $\Syz(F) \subset R^r$.
 \end{enumerate}
    
-Take two pairs $p_f=(s_f,f)$ and $p_g=(s_g,g)$. For monomials $a$ and $b$ such that $a\LM f = b\LM g \in \lcm(\LM f,\LM g)$, form a {\em J-pair} by taking the ``larger side'' of the corresponding S-polynomial: e.g., if $a\LM s_f \geq b\LM s_g$ then the J-pair is $(as_f,af)$.
+Take two pairs $p_f=(s_f,f)$ and $p_g=(s_g,g)$. For monomials $a$ and $b$ such that $a\LM f = b\LM g \in \lcm(\LM f,\LM g)$, form a {\em J-pair} by taking the ``larger side'' of the corresponding S-polynomial; e.g., if $a\LM s_f \geq b\LM s_g$, then the J-pair is $(as_f,af)$.
 
-We denote the set of all J-pairs of $p_f$ and $p_g$ as $J_{p_f,p_g}$. Note that $\lcm(\LM f,\LM g)$, the {\em set} of lowest common multiples, has one element in our current setting and so does $J_{p_f,p_g}$.  
+We denote the set of all J-pairs of $p_f$ and $p_g$ as $J_{p_f,p_g}$. Note that $\lcm(\LM f,\LM g)$, the {\em set} of lowest common multiples, has one element in our current setting as does $J_{p_f,p_g}$.  
 
-\begin{example} If 
+\begin{example} If we have:
 \begin{align*}
-p_f &= (e_1+\cdots,\,x_1^2x_2+\cdots)\\
-p_g &= (x_2e_1+\cdots,\,x_1x_2^2+\cdots)
+p_f &= (e_1+\cdots,\,x_1^2x_2+\cdots), \ p_g = (x_2e_1+\cdots,\,x_1x_2^2+\cdots),
 \end{align*}
-then, since $x_2\LM s_f < x_1\LM s_g$,
+then, since $x_2\LM s_f < x_1\LM s_g$, we have:
 \[
 J_{p_g,p_f} = \{x_1p_g\} = \{(x_1x_2e_1+\cdots, x_1^2x_2^2+\cdots)\}.
 \]
 \end{example}
 
-A pair $(s_f,f)$ is {\em covered} by $(s_g,g)$ if $\LM g | \LM f$ and for some $a$ such that $\LM f = a \LM g$ we have $a\LM s_g < \LM s_f$. 
+A pair $(s_f,f)$ is {\em covered} by $(s_g,g)$ if $\LM g | \LM f$ and for some $a$ such that $\LM f = a \LM g$, we have $a\LM s_g < \LM s_f$. 
 
 \begin{algorithm} \label{alg:StrongBuchberger} 
 $\alg{StrongBuchberger}(F)$
@@ -67,33 +66,33 @@ $\alg{StrongBuchberger}(F)$
 \end{algorithmic}
 \end{algorithm}
 
-A proof of termination relies on {\em Noetherianity} of the free module $R^r$. 
+Proof of termination relies on Noetherianity of the free module $R^r$. 
 
 \subsection{Translation to an equivariant setting}
-Let us go back to an infinite-dimensional polynomial ring $R=K[X]$ with some $\Pi$-action. As a running example take $R=K[x_i,\, i\in\NN]$ with a $\Pi$-compatible order, $\Pi=\Inc$.
+Let us return to an infinite-dimensional polynomial ring $R=K[X]$ with some $\Pi$-action. As a running example, take $R=K[x_i,\, i\in\mathbb N]$ with a $\Pi$-compatible order, $\Pi=\Inc$.
 
-To draw parallels with the approach of the previous section we need to work with pairs 
+To draw parallels with the approach of the previous section, we need to work with pairs:
 \[
 P = \{(s,f)\in (R*\Pi)^r\times R \mid f=s\cdot F\}.
 \]
-Recall that, for instance, for our running example one can think of $\Pi=\IncT = [\tau_i|i\in\NN]\subset \Inc$ in Remark~\ref{rem:IncT}, so \[R*\Pi = K[X]*\Pi = K([X]*\Pi).\] 
-The semidirect product $[X]*\Pi$ is a {\em non-Noetherian noncommutative} monoid where every element can be written in a \emph{left standard form} 
+Recall that, for instance, in our running example, one can think of $\Pi=\IncT = [\tau_i|i\in\mathbb N]\subset \Inc$ in Remark~\ref{rem:IncT}, so: \[R*\Pi = K[X]*\Pi = K([X]*\Pi).\] 
+The semidirect product $[X]*\Pi$ is a {\em non-Noetherian noncommutative} monoid where every element can be written in a \emph{left standard form}: 
 $$
-x_{i_1}\cdots x_{i_c} \cdot \tau_{j_1} \cdots \tau_{j_d}
+x_{i_1}\cdots x_{i_c} \cdot \tau_{j_1} \cdots \tau_{j_d},
 $$
-with $c,d \in \NN_0$ and $i_1 \leq \ldots \leq i_d$ and $j_1 \leq \ldots \leq j_d$. 
+with $i_1 \leq \ldots \leq i_c$ and $j_1 \leq \ldots \leq j_d$. 
 
-Since the $\Pi$-divisibility order on $[X]*\Pi$ is not a well partial order (indeed, $\tau_i$ are pairwise not comparable), the (left) free module $(R*\Pi)^r$, $r\in\NN$, is not Noetherian.  
-In the presence of $F$ (the vector of generators of the given ideal) and with a fixed order on $R$, we define the \emph{Schreyer order} on $(R*\Pi)^r$ as follows: for two terms $me_i$ and $m'e_j$, with $m,m'\in [X]*\Pi$,
+Since the $\Pi$-divisibility order on $[X]*\Pi$ is not a well-partial-order (indeed, $\tau_i$ are pairwise not comparable), the (left) free module $(R*\Pi)^r$, $r\in\mathbb N$, is not Noetherian.  
+In the presence of $F$ (the vector of generators of the given ideal) and with a fixed order on $R$, we define the \emph{Schreyer order} on $(R*\Pi)^r$ as follows. For two terms $me_i$ and $m'e_j$, with $m,m'\in [X]*\Pi$:
 \begin{itemize}
 \item compare $m\LM f_i$ and $m'\LM f_j$ using the order on $R$,
-\item then break the ties according to the position: i.e., compare $i$ and $j$.
+\item then break the ties according to the position (i.e., compare $i$ and $j$).
 \end{itemize}
-While we see Schreyer order as natural in some sense, any term order compatible with the order on $R$ may be used. %Anton: need more time to see why the current EquivariantGB order works better.
+While we see the Schreyer order as natural in some sense, any term order compatible with the order on $R$ may be used. %Anton: need more time to see why the current EquivariantGB order works better.
 
-A strong equivariant \GB, that can be defined similarly to the strong \GB\ in the previous section, is infinite (for) a nonzero $\Pi$-invariant ideal). 
-For instance, for a $I = R = K[x_1,x_2,\ldots]$ has a \GB\ $\{1\}$.
-However, a strong \GB\ has to include $\{(\tau_i-1)e_1 \mid i\in\NN \} \subset (R*\Pi)^1$. 
+A strong equivariant \GB, which can be defined similarly to a strong \GB\ in the previous section, is infinite (for a nonzero $\Pi$-invariant ideal). 
+For instance, $I = R = K[x_1,x_2,\ldots]$ has a \GB\ $\{1\}$.
+However, a strong \GB\ has to include the elements $\{(\tau_i-1)e_1 \mid i\in\mathbb N \} \subset (R*\Pi)^1$. 
 
 We found a way to modify Algorithm~\ref{alg:StrongBuchberger} to compute an equivariant \GB.  It, of course, falls short of computing a strong equivariant \GB, but the partial information computed about the syzygies and the mechanism of top-reduction of J-pairs eliminate a large number of unnecessary iterations in a na\"ive implementation of an equivariant Buchberger's algorithm~(Algorithm \ref{alg:Buchberger}).
 
@@ -128,11 +127,11 @@ $\alg{EquivariantSignatureBuchberger}(F)$
 \end{algorithmic}
 \end{algorithm}
 
-The highlighted part of the algorithm insures that it terminates for an input for which Algorithm \ref{alg:Buchberger} terminates.
+The highlighted part of the algorithm ensures that it terminates for an input for which Algorithm \ref{alg:Buchberger} terminates.
 Note that the rank $r$ (recall: $G$ and $S$ are contained in $(R*\Pi)^r\times R$) may grow as the algorithm progresses. 
 
 \begin{example}
-Consider the ideal $I = \ideal{F}_{\IncT}$ in the ring $R=K[x_i, y_{ij}\mid i,j\in\NN, i>j]$ where $F = y_{21}-x_2x_1$.
+Consider the ideal $I = \ideal{F}_{\IncT}$ in the ring $R=K[x_i, y_{ij}\mid i,j\in\mathbb N, i>j]$ where $F = y_{21}-x_2x_1$.
 
 The implementation of Algorithm~\ref{alg:egb-signature} produces the following output:
 \begin{M2}
@@ -169,15 +168,15 @@ o3 = {- x x  + y   , ...  ...  ...
 In particular, this computation shows that the kernel of the monomial map induced by $y_{ij}\mapsto x_ix_j$ is 
 $\ideal{y_{43}y_{21}-y_{42}y_{31},y_{42}y_{31}-y_{41}y_{32}}_{\IncT}$.
 
-The number of times a polynomial corresponding to a J-pair in the queue $J$ was reduced to zero is {\bf 95}. However, in this signature-based algorithm the knowledge of 95 syzygies is still useful as their signatures are stored and may ``cover'' some J-pairs in the queue. The total number of covered J-pairs, 1528, could be taken as a measure of how many useless reductions are avoided.
+The number of times a polynomial corresponding to a J-pair in the queue $J$ was reduced to zero is {\bf 95}. However, in this signature-based algorithm, the knowledge of 95 syzygies is still useful as their signatures are stored and may ``cover'' some J-pairs in the queue. The total number of covered J-pairs, 1528, could be taken as a measure of how many useless reductions are avoided.
 
-There is an optional parameter, \begin{center} \verb|egbSignature(...,PrincipalSyzygies=>true)|,\end{center} that instructs the algorithm to construct the so-called \emph{principal syzygies}, the syzygies that correspond to the trivial commutation relations on the generators: $(\sigma F_i) (\sigma' F_j)-(\sigma'F_j)(\sigma F_i)=0$, $i\neq j$, where $\sigma,\sigma'\in\Pi$ are extensions of the maps $[w(F_i)] \to [w(F_i) + w(F_j)]$ and $ [w(F_j)] \to [w(F_i) + w(F_j)]$.
-With this option the previous computation produces a much larger number of syzygies, {\bf 1114}; however, there is no improvement obtained in terms of covered J-pairs and the improvement in the number of J-pairs that need to be stored is insignificant. 
+There is an optional parameter: \begin{center} \verb|egbSignature(...,PrincipalSyzygies=>true)|,\end{center} that instructs the algorithm to construct the so-called \emph{principal syzygies}, the syzygies that correspond to the trivial commutation relations on the generators: $(\sigma F_i) (\sigma' F_j)-(\sigma'F_j)(\sigma F_i)=0$, $i\neq j$, where $\sigma,\sigma'\in\Pi$ are extensions of the maps $[w(F_i)] \to [w(F_i) + w(F_j)]$ and $ [w(F_j)] \to [w(F_i) + w(F_j)]$.
+With this option, the previous computation produces a much larger number of syzygies, {\bf 1114}; however, there is no improvement obtained in terms of covered J-pairs, and the improvement in the number of J-pairs that need to be stored is insignificant. 
 
-It is our understanding, that in the usual setting (where the results of~\cite{Gao-Volny-Wang:signature-GBs} apply in their entirety), the introduction of principal syzygies leads to a significant speedup. While, we can find examples where the effect of principal syzygies is nontrivial, it still seems to be negligible in the setting of this paper.
+It is our understanding that in the usual setting (where the results of~\cite{Gao-Volny-Wang:signature-GBs} apply in their entirety), the introduction of principal syzygies leads to a significant speedup. While we can find examples where the effect of principal syzygies is nontrivial, it still seems to be negligible in the setting of this paper.
 \end{example}
 
-Our general conclusion at the moment of writing is that signature-based approaches are applicable for computing equivariant \GBs, however, the savings produced by eliminating unnecessary reductions are largely offset by the amount of J-pairs needed to be stored.
-Perhaps with a more careful implementation of what we proposed and some new ideas one could overcome the bottlenecks of the required space complexity and the complexity of lookup of J-pairs. 
+Our general conclusion at the moment of writing is that signature-based approaches are applicable for computing EGBs, however, the savings produced by eliminating unnecessary reductions are largely offset by the amount of J-pairs needed to be stored.
+Perhaps with a more careful implementation of what we have proposed and some new ideas, one could overcome the bottlenecks of the required space complexity and the complexity of looking up  J-pairs. 
 
-At the moment, the implementations of algorithms that fall back onto highly optimized \GBs\ routines in the finite-dimensional setting (such as Algorithm~\ref{alg:truncBuch} and its variation in Remark~\ref{rem:4ti2}) seem to be the best practical choice. 
+At the moment, implementations of algorithms that fall back onto highly optimized \GBs\ routines in the finite-dimensional setting (such as Algorithm~\ref{alg:truncBuch} and its variation in Remark~\ref{rem:4ti2}) seem to be the best practical choice. 
