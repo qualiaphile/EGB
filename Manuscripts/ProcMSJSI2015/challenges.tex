@@ -1,17 +1,17 @@
 
-In this final section, we raise several computational challenges and theoretical problems arising from equivariant Gr\"obner bases (EGB) and asymptotic symbolic algebra.  Often these challenge problems can serve as benchmark tests for sharpening the methods of practitioners who are improving and implementing these new classes of algorithms.
+In this final section, we raise several computational challenges and theoretical problems arising from equivariant Gr\"obner bases and asymptotic symbolic algebra.  Often these challenge problems can serve as benchmark tests for sharpening the methods of practitioners who are improving and implementing these new classes of algorithms.
 
 \begin{problem}[Chains induced by a monomial]
 Compute symbolically an EGB for the chain of toric ideals $I_n = \ker(y_{ij} \mapsto x_i^a x_j^b)$, $1 \leq i \neq j \leq n$, for small $a>b$ with $\gcd(a,b)=1$. (Compare with \cite{Hillar13, hillar2016corrigendum, KKL:equivariant-markov, draisma2013noetherianity, Krone:egb-toric}).
 \end{problem}
 
-The case $a=2,b=1$ is the only case explicitly computed (Theorem~\ref{monomthm}). A variant of this problem has the same statement apart from considering a smaller subset of indices: $1 \leq j < i \leq n$ (see \cite[Remark 6.3]{draisma2013noetherianity}) and also more indices:
+The case $a=2,b=1$ is the only one explicitly computed (Theorem~\ref{monomthm}). A variant of this problem has the same statement apart from considering a smaller subset of indices: $1 \leq j < i \leq n$ (see \cite[Remark 6.3]{draisma2013noetherianity}) and also more indices:
 
 \begin{problem}
-Develop combinatorial methodology to understand the case of kernels with more than two indices such as $\ker(y_{ijk} \mapsto x_i^3 x_j^2 x_k)$?  
+Develop combinatorial methodology to understand kernels with more than two indices such as $\ker(y_{ijk} \mapsto x_i^3 x_j^2 x_k)$?  
 \end{problem}
 
-There are also some basic questions in the theory of EGBs that remain open.  For instance, it is not so well-understood exactly which classes of ideals have finite generation, much less an equivariant Gr\"obner basis. 
+There are also some basic questions in the theory of EGBs that remain open.  For instance, it is not so well understood exactly which classes of ideals have finite generation, much less an equivariant Gr\"obner basis. 
 While \cite{draisma2013noetherianity} gives a definitive answer for a large class of invariant toric ideals (i.e., the kernels of equivariant monomial maps), the following question is open.
 \begin{question}[Kernel of a polynomial map]
 Is there a finite set of generators (up to symmetry) for the chain $I_n = \ker(y_{ij} \mapsto f(x_i,x_j))$, $1 \leq i \neq j \leq n$, for a given polynomial $f \in \mathbb C[s,t]$?  
@@ -78,7 +78,7 @@ One of the largest computations done so far is that of~\cite{Brouwer09e}; it is 
 \begin{problem}
 Use EGBs to analyze the Gaussian three-factor model, i.e., obtain the kernel of the map
 \begin{align*} 
-\mathbb C[y_{ij} \mid i,j \in \NN, i > j] &\to \mathbb C[s_i,t_i,u_i \mid i \in \NN],\\ 
+\mathbb C[y_{ij} \mid i,j \in \mathbb N, i > j] &\to \mathbb C[s_i,t_i,u_i \mid i \in \mathbb N],\\ 
 y_{ij} &\mapsto s_is_j + t_it_j + u_iu_j\,.
 \end{align*}
 \end{problem} 

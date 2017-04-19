@@ -1,5 +1,5 @@
 \subsection{Description of the algorithm}
-First proposed in \cite{aschenbrenner2007finite} and formalized in \cite{Brouwer09e}, the classical Buchberger's algorithm~\cite{buchberger1985grobner} may be adapted to the equivariant setting in a straightforward way.
+First proposed in \cite{aschenbrenner2007finite} and formalized in \cite{Brouwer09e}, the classical Buchberger's algorithm~\cite{buchberger1965algorithmus} may be adapted to the equivariant setting in a straightforward way.
 
 Let $R = K\mon$ with $\Pi$ acting on $\mon$, and let $\leq$ be a $\Pi$ respecting monomial order.  For $f,g \in R$ say that $g$ {\em $\Pi$-reduces} $f$ if $\LT g |_{\Pi} \LT f$ and the reduction is $f - \frac{\LC(f)}{\LC(g)}mg$ where $m \in \mon *\Pi$ such that $\LT f = m\LT g$ (and $\LC(f)$ denotes the lead coefficient of $f$).  For $G \subseteq R$, a {\em $\Pi$-normal form} of $f$ with respect to $G$ denoted $\NF_{\Pi G}(f)$ is the result of repeated $\Pi$-reductions of $f$ by elements of $G$ until no more reductions are possible.  Equivalently $\NF_{\Pi G}(f)$ is a normal form of $f$ with respect to $\Pi G$.
 
@@ -103,10 +103,10 @@ $G = \alg{TruncatedEGB}(F)$
 \end{algorithmic}
 \end{algorithm}
 
-\begin{proof}[Proof of termination (if there exist a finite equivariant Gr\"obner basis of $I$)]
+\begin{proof}[Proof of termination (supposing a finite EGB for $I$)]
 For each $n$, let $G_n$ denote the value of $G$ after that step.  Computing $G_n$ is a finite process since it takes place in $R_n$ which is Noetherian.  $G_n$ is a finite set and so it has a finite number of S-pairs to be checked.  Therefore testing whether $G_n$ is a $\Inc$-equivariant Gr\"obner basis is finite.
 
-It remains to be proved that $G_n$ is a $\Inc$-equivariant Gr\"obner basis for some value of $n$.  If $H$ is a $\Inc$-equivariant Gr\"obner basis of $I$, for any $h \in H$ we have $h \in \tilde{I}_{F,n}$ for all $n \geq w_F(h)$, so $\LT(h) \in \LT(\tilde{I}_{F,n})$.  Therefore there is some element $g \in G_n$ with $\LT(g)|_{\Inc} \LT(h)$.  For $n = \max_{h\in H} w_F(h)$, the initial ideal $\ideal{\LT(G_n)}_{\Inc}$ contains $\ideal{\LT(H)}_{\Inc}$ and so $G_n$ is a $\Inc$-equivariant Gr\"obner basis of $I$.
+It remains to be proved that $G_n$ is a $\Inc$-equivariant Gr\"obner basis for some value of $n$.  If $H$ is a $\Inc$-equivariant Gr\"obner basis of $I$, for any $h \in H$ we have $h \in \tilde{I}_{F,n}$ for all $n \geq w_F(h)$, so $\LT(h) \in \LT(\tilde{I}_{F,n})$.  Therefore there is some element $g \in G_n$ with $\LT(g)|_{\Inc} \LT(h)$.  For $n = \max_{h\in H} w_F(h)$, the initial ideal $\ideal{\LT(G_n)}_{\Inc}$ then necessarily contains $\ideal{\LT(H)}_{\Inc}$ and so $G_n$ is a $\Inc$-equivariant Gr\"obner basis of $I$.
 \end{proof}
 
 In practice, $G_n$ can be computed either using a traditional Gr\"obner basis algorithm on input $\Inc F \cap R_n$, or using an equivariant Buchberger's algorithm on input $F$ with the following two caveats:
