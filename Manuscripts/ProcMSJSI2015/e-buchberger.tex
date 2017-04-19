@@ -30,7 +30,7 @@ $G = \alg{Buchberger}(F)$
 
 Given $f,g \in R$ define:
  \[ \C S_{f,g} := \{(m_1f,m_2g) \mid m_1,m_2 \in \mon * \Pi \text{ such that } \LT m_1f = \LT m_2g\}. \]
-This set is closed under the diagonal action of $\mon *\Pi$, making $\C S_{f,g}$ a $\mon *\Pi$-module.  
+This collection is closed under the diagonal action of $\mon *\Pi$, making $\C S_{f,g}$ a $\mon *\Pi$-module.  
 
 \begin{definition}\label{def:buchberger-criterion}
 A set $G \subseteq R$ satisfies the {\em equivariant Buchberger criterion} if for all $(h_1,h_2) \in \bigcup_{f,g\in G} \C S_{f,g}$:
@@ -62,7 +62,7 @@ This generator is typically referred to as the {\em S-pair} of $f,g$.  Therefore
   \[ \left(\frac{m}{\LT \sigma_1 f} \sigma_1 f,\; \frac{m}{\LT \sigma_2 g} \sigma_2 g\right),\]
  where $m = \lcm(\LT \sigma_1 f,\LT \sigma_2 g)$.
 
- Any $f,g \in R$ have finite width so $\sigma_1 f$ depends only on $\sigma_1|_{[w(f)]}$, and similarly for $\sigma_2 g$.  In fact, we can always factor the pair as:
+ Any $f,g \in R$ have finite width so that $\sigma_1 f$ depends only on $\sigma_1|_{[w(f)]}$, and similarly for $\sigma_2 g$.  In fact, we can always factor the pair as:
   \[ (\sigma_1 f, \sigma_2 g) = \rho(\sigma'_1 f, \sigma'_2 g),\]
  for some $\rho \in \Inc$, while $\sigma'_1:[w(f)] \to [w(f) + w(g)]$ and $\sigma'_2:[w(g)] \to [w(f) + w(g)]$ are strictly increasing functions.  Here $\sigma'_1$ and $\sigma'_2$ are chosen to ``interlace'' the variables of $f$ and $g$ in the same way as $\sigma_1,\sigma_2$.  (To consider $\sigma'_1,\sigma'_2$ as elements of $\Inc$, take any choice of extensions to maps on $\B N$.)
  
