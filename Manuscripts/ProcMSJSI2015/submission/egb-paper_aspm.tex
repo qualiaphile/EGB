@@ -1,0 +1,219 @@
+%\documentclass[frame,tombow,center]{aspm}
+\documentclass[twoside,leqno]{article}
+% \documentclass[]{aspm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \articleinfo{Book Title}{Vol}{Year}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \articleinfo{The 50th Anniversary of Gr\"obner Bases}{75}{2017}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \setcounter{page}{first page number}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setcounter{page}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \usepackage{  }
+% \newcommand{  }
+% \def{  }
+% \newtheorem{  }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{verbatim}
+\usepackage{amssymb}
+\usepackage{amsbsy}
+\usepackage{amscd}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage[mathscr]{eucal}
+
+\usepackage{algorithmic}
+\usepackage{comment}
+\usepackage{color}
+\usepackage{soul}
+\usepackage{setspace}
+\usepackage{graphicx}
+
+\newtheorem{theorem}{Theorem}\numberwithin{theorem}{section}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{remark}[theorem]{Remark}
+
+\newtheorem{example}[theorem]{Example}
+\newtheorem{algorithm}[theorem]{Algorithm}
+
+%\numberwithin{equation}{section}
+
+\newenvironment{M2}{ \begin{spacing}{0.4} %\begin{quote}
+\bigskip \small} { %\end{quote}
+\end{spacing} 
+\bigskip 
+}
+
+\newcommand{\B}[1]{\mathbb #1}
+\newcommand{\C}[1]{\mathcal #1}
+\newcommand{\F}[1]{\mathfrak #1}
+\newcommand{\RM}[1]{\mathrm #1}
+\newcommand{\SF}[1]{\mathsf #1}
+\newcommand{\BF}[1]{\mathbf #1}
+
+\newcommand{\alg}[1]{\operatorname{#1}}
+\newcommand{\ideal}[1]{\langle #1 \rangle}
+\newcommand{\norm}[1]{\| #1 \|_1}
+%\newcommand{\dfrac}{\genfrac{}{}{}0}
+%\newcommand{\tfrac}{\genfrac{}{}{}1}
+
+\DeclareMathOperator{\SL}{SL}
+\DeclareMathOperator{\GL}{GL}
+\DeclareMathOperator{\SU}{SU}
+\DeclareMathOperator{\Id}{Id}
+\DeclareMathOperator{\poly}{poly}
+\DeclareMathOperator{\initial}{in}
+\DeclareMathOperator{\NF}{NF}
+\DeclareMathOperator{\lcm}{lcm}
+\DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\Syz}{Syz}
+\newcommand{\dist}{d}
+\newcommand{\actson}{\curvearrowright}
+\newcommand{\cover}{\widetilde}
+\newcommand{\closure}{\overline}
+\newcommand{\Inc}{\operatorname{Inc}(\B N)}
+\newcommand{\IncT}{\operatorname{Inc}^\tau(\B N)}
+\newcommand{\SymN}{\F S_\infty}
+\newcommand{\Sn}{\tilde{\F S}_n}
+\newcommand{\Snp}{\tilde{\F S}_{n'}}
+\newcommand{\Sinf}{\F S_{\infty}^r}
+\newcommand{\lleq}{\preceq}
+\newcommand{\ggeq}{\succeq}
+\newcommand{\llleq}{\sqsubseteq}
+\newcommand{\gggeq}{\sqsupseteq}
+\newcommand{\ZS}{\B Z^{\C S}}
+\newcommand{\ZT}{\B Z^{\C T}}
+\newcommand{\ZSn}{\B Z^{\C S_n}}
+\newcommand{\ZTn}{\B Z^{\C T_n}}
+\newcommand{\ZSone}{\B Z^{\C S_{(1,\ldots,1)}}}
+\newcommand{\ZSC}{\ZS_{\mathbf{sc}}}
+\newcommand{\Lin}{\mathrm{Lin}}
+\newcommand{\mon}{M}
+\newcommand{\Sym}{\F S_\infty}
+\newcommand{\LT}{\initial_{\leq}}
+\newcommand{\LTp}{\initial_{\leq'}}
+\newcommand{\LC}{\operatorname{LC}}
+\newcommand{\LM}{\operatorname{LM}}
+\newcommand{\mm}{\C M}
+\newcommand{\degtot}{\operatorname{deg}_{tot}}
+\newcommand{\NN}{\BF N}
+
+\newcommand{\GB}{{Gr\"obner basis}}
+\newcommand{\GBs}{{Gr\"obner bases}}
+\newcommand{\EGB}{{equivariant Gr\"obner basis}}
+\newcommand{\EGBs}{{equivariant Gr\"obner bases}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \title[Running Head]{Article Title}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{\Large Equivariant Gr\"obner bases\thanks{Part of this work took place during the ``Free Resolutions, Representations, and Asymptotic Algebra'' workshop at the BANFF International Research Station, April, 2016.}}
+\author{Christopher J. Hillar \\
+\and
+Robert Kroner
+\and
+Anton Leykin\thanks{Research of AL is supported in part by NSF grant DMS-1151297.}}
+
+% \date{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \author[Running Head]{Full Name}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\author[C.~Hillar]{Christopher J. Hillar}
+%\address{University of California, Berkeley}
+%\email{chillar@msri.org}
+%
+%\author[R.~Krone]{Robert Krone}
+%\address{Queens University, Canada}
+%\email{rk71@queensu.ca}
+%
+%\author[A. Leykin]{Anton Leykin}
+%\address{Georgia Institute of Technology}
+%\email{leykin@math.gatech.edu}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \rcvdate{Received Date}
+% \rvsdate{Revised Date}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\rcvdate{5 October 2016}
+%\rvsdate{31 March 2017}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subjclass[2010]{AMS MSC}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \subjclass[2010]{13E05, 13E15, 20B30, 06A07}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \keywords{***, ****}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \keywords{Invariant ideal, well-quasi-ordering, symmetric group, Gr\"obner basis, generating sets, infinite dimensional algebra}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\maketitle 
+
+\begin{abstract}
+Algorithmic computation in polynomial rings is a classical topic in mathematics. However, little attention has been given to the case of rings with an infinite number of variables until recently when theoretical efforts have made possible the development of effective routines. Ability to compute relies on finite generation up to symmetry for ideals invariant under a large group or monoid action, such as the permutations of the natural numbers. We summarize the current state of theory and applications for equivariant Gr\"obner bases, develop several algorithms to compute them, showcase our software implementation, and close with several open problems and computational challenges.
+\end{abstract}
+
+
+%\tableofcontents
+\section{Introduction}
+
+\subsection{History}
+
+\input{history.tex}
+
+\subsection{Applications}
+
+\input{applications.tex}
+
+\subsection{Goals and structure}
+
+Since their introduction, Gr\"obner bases techniques have improved immensely.  We believe that in this new setting of infinite-dimensional polynomial algebras, which demands far more computational power, algorithmic development is at the beginning of a similar road, with similar advances ahead. Our aims here are to outline the current state of effective computation in this setting and to provide a background for researchers to start tackling problems in this exciting  domain. 
+
+After some preliminaries in Section~\ref{prelim}, we quickly move on to describing equivariant Gr\"obner bases algorithms in Section~\ref{EGB}.  Section~\ref{sec:signature} goes on to explain a modern signature-based approach and a strategy inspired by it for an equivariant Buchberger's algorithm. The final Section~\ref{sec:challenges} outlines computational and theoretical challenges for future exploration.
+
+\section{Preliminaries}\label{prelim}
+
+\input{preliminaries.tex}
+
+\section{Equivariant Buchberger algorithm}\label{EGB}
+
+\input{e-buchberger.tex}
+
+\section{A signature-based approach}\label{sec:signature}
+
+\input{egb-signature.tex}
+
+\section{Open questions and challenges}\label{sec:challenges}
+
+\input{challenges.tex}
+
+\bibliographystyle{plain}
+\bibliography{egb}
+
+\end{document}
+% ----------------------------------------------------------------
+`
