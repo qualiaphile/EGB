@@ -1,0 +1,60 @@
+
+
+Dear Takayuki,
+
+Here are my corrections (attached).  Please be sure to bibtex as well as Latex, as some of the references have been corrected.  
+
+I have also noticed a few minor typos in the Foreword and Preface, which I include below.
+
+
+Best regards,
+-Chris (and Anton and Robert)
+
+
+
+-------------
+Foreword (page 5)
+
+page 5
+line 3, i would say "... in 1965 has received so much attention."
+line -13, left quotations are wrong direction in "S-polynomials"
+
+page 6
+line -12, missing comma as in: " "deep reasoning," etc.) "
+
+-------------
+Preface (page 7)
+
+As we document in our chapter, it appears that a fully rigorous algorithmic theory for polynomials already appeared in 1913 with the work of N. Gjunter.  Perhaps it would be good to mention this earlier reference (14 years before Macaulay).  See attached ACM review of Gjunter's work.
+
+page 7
+line -20, "it turned out that Buchberger's algorithm"
+line -18, "After the pioneering work of Hironaka"
+line -17, "about twenty years,"
+
+page 8
+line 3, "of convex polytopes has been developed dramatically."
+line 6, "based on Buchberger's algorithm."
+line 10, An epoch-making application"
+line 12, this is very confusing as worded
+line 14, "that a Markov basis corresponds to a system"
+line 15, "Later, the new"
+line 20, "Taking the above" (remove "With")
+line -4, "There was a welcome"
+
+page 9
+line 3, there is an extra space in " Drton; "Algorithms for ..."
+line 19, "session of contributed talks was"
+line 25, "the main source of funding for the"
+line 27, "(S) entitled"
+
+
+
+
+
+
+
+
+
+
+

@@ -1,12 +1,11 @@
 %\documentclass[frame,tombow,center]{aspm}
-\documentclass[twoside,leqno]{article}
-% \documentclass[]{aspm}
+\documentclass[]{aspm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \articleinfo{Book Title}{Vol}{Year}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \articleinfo{The 50th Anniversary of Gr\"obner Bases}{75}{2017}
+\articleinfo{The 50th Anniversary of Gr\"obner Bases}{75}{2017}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \setcounter{page}{first page number}
@@ -120,67 +119,57 @@
 % \title[Running Head]{Article Title}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title{\Large Equivariant Gr\"obner bases\thanks{Part of this work took place during the ``Free Resolutions, Representations, and Asymptotic Algebra'' workshop at the BANFF International Research Station, April, 2016.}}
-\author{Christopher J. Hillar \\
-\and
-Robert Kroner
-\and
-Anton Leykin\thanks{Research of AL is supported in part by NSF grant DMS-1151297.}}
-
-% \date{}
+\title[Equivariant Gr\"obner bases]{Equivariant Gr\"obner bases}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \author[Running Head]{Full Name}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\author[C.~Hillar]{Christopher J. Hillar}
-%\address{University of California, Berkeley}
-%\email{chillar@msri.org}
-%
-%\author[R.~Krone]{Robert Krone}
-%\address{Queens University, Canada}
-%\email{rk71@queensu.ca}
-%
-%\author[A. Leykin]{Anton Leykin}
-%\address{Georgia Institute of Technology}
-%\email{leykin@math.gatech.edu}
+\author[C.~Hillar]{Christopher J. Hillar}
+\address{University of California, Berkeley}
+\email{chillar@msri.org}
 
+\author[R.~Krone]{Robert Krone}
+\address{Queens University, Canada}
+\email{rk71@queensu.ca}
 
+\author[A. Leykin]{Anton Leykin}
+\address{Georgia Institute of Technology}
+\email{leykin@math.gatech.edu}
+\thanks{Research of AL is supported in part by NSF grant DMS-1151297.}
 
+\thanks{Part of this work took place during the ``Free Resolutions, Representations, and Asymptotic Algebra'' workshop at the BANFF International Research Station, April, 2016.} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \rcvdate{Received Date}
 % \rvsdate{Revised Date}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%\rcvdate{5 October 2016}
-%\rvsdate{31 March 2017}
+\rcvdate{5 October 2016}
+\rvsdate{31 March 2017}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subjclass[2010]{AMS MSC}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \subjclass[2010]{13E05, 13E15, 20B30, 06A07}
+\subjclass[2010]{13E05, 13E15, 20B30, 06A07}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \keywords{***, ****}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \keywords{Invariant ideal, well-quasi-ordering, symmetric group, Gr\"obner basis, generating sets, infinite dimensional algebra}
+\keywords{Invariant ideal, well-quasi-ordering, symmetric group, Gr\"obner basis, generating sets, infinite dimensional algebra}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-
-\maketitle 
 
 \begin{abstract}
 Algorithmic computation in polynomial rings is a classical topic in mathematics. However, little attention has been given to the case of rings with an infinite number of variables until recently when theoretical efforts have made possible the development of effective routines. Ability to compute relies on finite generation up to symmetry for ideals invariant under a large group or monoid action, such as the permutations of the natural numbers. We summarize the current state of theory and applications for equivariant Gr\"obner bases, develop several algorithms to compute them, showcase our software implementation, and close with several open problems and computational challenges.
 \end{abstract}
 
-
+\maketitle 
 %\tableofcontents
 \section{Introduction}
-
 \subsection{History}
 
 \input{history.tex}
